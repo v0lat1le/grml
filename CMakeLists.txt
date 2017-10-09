@@ -7,24 +7,21 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 ## Project Dependencies
-find_package(Boost 1.65 COMPONENTS unit_test_framework REQUIRED)
-include_directories(${Boost_INCLUDE_DIRS})
-link_directories(${Boost_LIBRARY_DIRS})
+include(vendor/boost/CMakeLists.txt)
 
-## Project Sources
-file(GLOB_RECURSE PROJECT_SRCS ${PROJECT_SOURCE_DIR}/src/*.cpp ${PROJECT_SOURCE_DIR}/src/*.h)
-file(GLOB_RECURSE TEST_SRCS ${PROJECT_SOURCE_DIR}/test/*.cpp ${PROJECT_SOURCE_DIR}/test/*.h)
+## Libraries
+include_directories(lib)
 
-# Main
-add_executable(${PROJECT_NAME} ${PROJECT_SRCS})
-target_link_libraries(${PROJECT_NAME})
+# Applications
+add_executable(${PROJECT_NAME} bin/grml.cpp)
+target_link_libraries(${PROJECT_NAME} Boost::boost)
 
 # Tests
 include(CTest)
 enable_testing()
 
-add_executable(tests ${TEST_SRCS})
+add_executable(tests lib/test_grammar.cpp)
 target_link_libraries(tests
-    ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY}
+    Boost::unit_test_framework
 )
 add_test(NAME tests COMMAND tests)
