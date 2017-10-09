@@ -1,4 +1,5 @@
 #include "grammar.h"
+#include <boost/fusion/include/io.hpp>
 
 int main(int, char**)
 {

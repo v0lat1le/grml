@@ -1,27 +1,10 @@
+#include "ast.h"
+
 #include <boost/config/warning_disable.hpp>
+
 #include <boost/spirit/include/qi.hpp>
-#include <boost/spirit/include/phoenix_core.hpp>
-#include <boost/spirit/include/phoenix_operator.hpp>
-#include <boost/spirit/include/phoenix_object.hpp>
+
 #include <boost/fusion/include/adapt_struct.hpp>
-#include <boost/fusion/include/io.hpp>
-
-#include <iostream>
-#include <string>
-#include <complex>
-
-namespace grml {
-    namespace qi = boost::spirit::qi;
-    namespace ascii = boost::spirit::ascii;
-
-    struct Employee
-    {
-        int age;
-        std::string surname;
-        std::string forename;
-        double salary;
-    };
-}
 
 BOOST_FUSION_ADAPT_STRUCT(
     grml::Employee,
@@ -31,7 +14,11 @@ BOOST_FUSION_ADAPT_STRUCT(
     (double, salary)
 )
 
-namespace grml {
+namespace grml
+{
+    namespace qi = boost::spirit::qi;
+    namespace ascii = boost::spirit::ascii;
+
     template <typename Iterator>
     struct Grammar : qi::grammar<Iterator, Employee(), ascii::space_type>
     {
