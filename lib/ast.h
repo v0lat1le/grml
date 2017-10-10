@@ -1,12 +1,10 @@
-#include <string>
+#pragma once
+
+
+#include <boost/variant.hpp>
 
 namespace grml
 {
-    struct Employee
-    {
-        int age;
-        std::string surname;
-        std::string forename;
-        double salary;
-    };
+    using Literal = boost::variant<int, double, bool>;
+    using Expression = boost::variant<Literal>;
 }

@@ -20,7 +20,7 @@ target_link_libraries(${PROJECT_NAME} Boost::boost)
 include(CTest)
 enable_testing()
 
-add_executable(tests lib/test_grammar.cpp)
+add_executable(tests lib/test_parser.cpp)
 target_link_libraries(tests
     Boost::unit_test_framework
 )

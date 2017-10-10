@@ -1,5 +1,4 @@
-#include "grammar.h"
-#include <boost/fusion/include/io.hpp>
+#include "parser.h"
 
 int main(int, char**)
 {
@@ -14,29 +13,24 @@ int main(int, char**)
 
     using boost::spirit::ascii::space;
     typedef std::string::const_iterator iterator_type;
-    typedef grml::Grammar<iterator_type> employee_parser;
+    typedef grml::Parser<iterator_type> Parser;
 
-    employee_parser g; // Our grammar
+    Parser parser;
     std::string str;
     while (getline(std::cin, str))
     {
         if (str.empty() || str[0] == 'q' || str[0] == 'Q')
             break;
 
-        grml::Employee emp;
+        grml::Expression expr;
         std::string::const_iterator iter = str.begin();
         std::string::const_iterator end = str.end();
-        bool r = phrase_parse(iter, end, g, space, emp);
+        bool r = phrase_parse(iter, end, parser, space, expr);
 
         if (r && iter == end)
         {
-            std::cout << boost::fusion::tuple_open('[');
-            std::cout << boost::fusion::tuple_close(']');
-            std::cout << boost::fusion::tuple_delimiter(", ");
-
             std::cout << "-------------------------\n";
             std::cout << "Parsing succeeded\n";
-            std::cout << "got: " << boost::fusion::as_vector(emp) << std::endl;
             std::cout << "\n-------------------------\n";
         }
         else
