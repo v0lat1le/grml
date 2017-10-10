@@ -7,25 +7,35 @@
 
 #include <string_view>
 
-grml::Expression parse(const std::string_view& str)
+BOOST_TEST_DONT_PRINT_LOG_VALUE(grml::Expression)
+
+namespace
 {
-  using boost::spirit::ascii::space;
+  grml::Expression parse(const std::string_view& str)
+  {
+    using boost::spirit::ascii::space;
 
-  typedef std::string_view::const_iterator iterator_type;
-  typedef grml::Parser<iterator_type> Parser;
+    typedef std::string_view::const_iterator iterator_type;
+    typedef grml::Parser<iterator_type> Parser;
 
-  Parser parser;
-  grml::Expression expr;
-  
-  bool r = phrase_parse(str.begin(), str.end(), parser, space, expr);
-  BOOST_TEST(r);
+    Parser parser;
+    grml::Expression expr;
+    
+    bool r = phrase_parse(str.begin(), str.end(), parser, space, expr);
+    BOOST_TEST(r);
 
-  return expr;
+    return expr;
+  }
 }
 
-BOOST_AUTO_TEST_CASE( free_test_function )
+BOOST_AUTO_TEST_CASE(test_expressions)
 {
   BOOST_TEST(parse("5;") == grml::Expression(grml::Literal(5)));
+  BOOST_TEST(parse("-5;") == grml::Expression(grml::Literal(-5)));
   BOOST_TEST(parse("false;") == grml::Expression(grml::Literal(false)));
   BOOST_TEST(parse("0.5;") == grml::Expression(grml::Literal(0.5)));
+
+  BOOST_TEST(parse("3+5;") == grml::Expression(
+    grml::BinaryOperation(grml::BinaryOperator::ADD, grml::Literal(3), grml::Literal(5))
+  ));
 }
