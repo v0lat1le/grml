@@ -1,0 +1,17 @@
+dist: trusty
+sudo: false
+language: cpp
+
+addons:
+  apt:
+    sources:
+      - boost-latest
+      - ubuntu-toolchain-r-test
+    packages:
+      - g++-5
+      - libboost1.65-all-dev
+
+script:
+  - CXX=/usr/bin/g++-5 CC=/usr/bin/gcc-5 cmake . 
+  - cmake --build . -- -j2 
+  - ctest -j2
