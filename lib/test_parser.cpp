@@ -53,4 +53,6 @@ BOOST_AUTO_TEST_CASE(test_expressions)
   BOOST_TEST(parse("(2+4)*6;") == grml::Expression(
     grml::BinaryOperation(grml::BinaryOperator::MULTIPLY, grml::BinaryOperation(grml::BinaryOperator::ADD, grml::Literal(2), grml::Literal(4)), grml::Literal(6))
   ));
+
+  BOOST_TEST(parse("bob;") == grml::Expression(grml::Identifier("bob")));
 }

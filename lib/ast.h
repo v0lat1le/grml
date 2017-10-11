@@ -24,11 +24,25 @@ namespace grml
 
     using Literal = boost::variant<int, double, bool>;
 
+    struct Identifier
+    {
+        std::string name;
+        
+        Identifier() {}
+        Identifier(std::string n) : name(n) {}
+    };
+    
+    bool operator == (const Identifier& lhs, const Identifier& rhs)
+    {
+        return lhs.name == rhs.name;
+    }
+
     struct UnaryOperation;
     struct BinaryOperation;
 
     using Expression = boost::variant<
         Literal,
+        Identifier,
         boost::recursive_wrapper<UnaryOperation>,
         boost::recursive_wrapper<BinaryOperation>
     >;
@@ -39,7 +53,7 @@ namespace grml
         Expression rhs;
         
         UnaryOperation() {}
-        UnaryOperation(UnaryOperator o, Expression r) : op(o), rhs(r) {}
+        UnaryOperation(UnaryOperator o, Expression r) : op(o), rhs(std::move(r)) {}
     };
     
     bool operator == (const UnaryOperation& lhs, const UnaryOperation& rhs)
@@ -54,7 +68,7 @@ namespace grml
         Expression rhs;
 
         BinaryOperation() {}
-        BinaryOperation(BinaryOperator o, Expression l, Expression r) : op(o), lhs(l), rhs(r) {}
+        BinaryOperation(BinaryOperator o, Expression l, Expression r) : op(o), lhs(std::move(l)), rhs(std::move(r)) {}
     };
 
     bool operator == (const BinaryOperation& lhs, const BinaryOperation& rhs)
