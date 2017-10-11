@@ -20,8 +20,14 @@ target_link_libraries(${PROJECT_NAME} Boost::boost)
 include(CTest)
 enable_testing()
 
-add_executable(tests lib/test_parser.cpp)
-target_link_libraries(tests
+add_executable(test_parser lib/test_parser.cpp)
+target_link_libraries(test_parser
     Boost::unit_test_framework
 )
-add_test(NAME tests COMMAND tests)
+add_test(NAME test_parser COMMAND test_parser)
+
+add_executable(test_inferer lib/inferer.cpp lib/test_inferer.cpp)
+target_link_libraries(test_inferer
+    Boost::unit_test_framework
+)
+add_test(NAME test_inferer COMMAND test_inferer)
