@@ -10,11 +10,16 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 include(vendor/boost/CMakeLists.txt)
 
 ## Libraries
-include_directories(lib)
+add_library(parser INTERFACE)
+target_include_directories(parser INTERFACE lib)
+
+add_library(inferer lib/inferer.cpp)
+target_include_directories(inferer PUBLIC lib)
+target_link_libraries(inferer parser)
 
 # Applications
 add_executable(${PROJECT_NAME} bin/grml.cpp)
-target_link_libraries(${PROJECT_NAME} Boost::boost)
+target_link_libraries(${PROJECT_NAME} parser Boost::boost)
 
 # Tests
 include(CTest)
@@ -22,12 +27,14 @@ enable_testing()
 
 add_executable(test_parser lib/test_parser.cpp)
 target_link_libraries(test_parser
+    parser
     Boost::unit_test_framework
 )
 add_test(NAME test_parser COMMAND test_parser)
 
-add_executable(test_inferer lib/inferer.cpp lib/test_inferer.cpp)
+add_executable(test_inferer lib/test_inferer.cpp)
 target_link_libraries(test_inferer
+    inferer
     Boost::unit_test_framework
 )
 add_test(NAME test_inferer COMMAND test_inferer)
