@@ -29,7 +29,7 @@ namespace grml
         std::string name;
         
         Identifier() {}
-        Identifier(std::string n) : name(n) {}
+        Identifier(std::string n) : name(std::move(n)) {}
     };
     
     bool operator == (const Identifier& lhs, const Identifier& rhs)
@@ -39,12 +39,14 @@ namespace grml
 
     struct UnaryOperation;
     struct BinaryOperation;
+    struct LetConstruct;
 
     using Expression = boost::variant<
         Literal,
         Identifier,
         boost::recursive_wrapper<UnaryOperation>,
-        boost::recursive_wrapper<BinaryOperation>
+        boost::recursive_wrapper<BinaryOperation>,
+        boost::recursive_wrapper<LetConstruct>
     >;
 
     struct UnaryOperation
@@ -74,5 +76,35 @@ namespace grml
     bool operator == (const BinaryOperation& lhs, const BinaryOperation& rhs)
     {
         return lhs.op == rhs.op && lhs.lhs == rhs.lhs && lhs.rhs == rhs.rhs;
+    }
+
+    struct ValueDeclaration
+    {
+        Identifier identifier;
+        Expression expression;
+
+        ValueDeclaration() {}
+        ValueDeclaration(Identifier id, Expression e) : identifier(std::move(id)), expression(std::move(e)) {}
+    };
+    
+    bool operator == (const ValueDeclaration& lhs, const ValueDeclaration& rhs)
+    {
+        return lhs.identifier == rhs.identifier && lhs.expression == rhs.expression;
+    }
+
+    using Declaration = boost::variant<ValueDeclaration>;
+
+    struct LetConstruct
+    {
+        std::vector<Declaration> declarations;
+        Expression expression;
+
+        LetConstruct() {}
+        LetConstruct(std::vector<Declaration> ds, Expression e) : declarations(std::move(ds)), expression(std::move(e)) {}
+    };
+    
+    bool operator == (const LetConstruct& lhs, const LetConstruct& rhs)
+    {
+        return lhs.declarations == rhs.declarations && lhs.expression == rhs.expression;
     }
 }
