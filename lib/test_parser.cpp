@@ -22,7 +22,7 @@ namespace
     grml::Expression expr;
     
     bool r = phrase_parse(str.begin(), str.end(), parser, space, expr);
-    BOOST_TEST(r);
+    BOOST_TEST_REQUIRE(r, "failed to parse \"" << str << "\"");
 
     return expr;
   }
@@ -37,5 +37,20 @@ BOOST_AUTO_TEST_CASE(test_expressions)
 
   BOOST_TEST(parse("3+5;") == grml::Expression(
     grml::BinaryOperation(grml::BinaryOperator::ADD, grml::Literal(3), grml::Literal(5))
+  ));
+  BOOST_TEST(parse("2*4;") == grml::Expression(
+    grml::BinaryOperation(grml::BinaryOperator::MULTIPLY, grml::Literal(2), grml::Literal(4))
+  ));
+  BOOST_TEST(parse("2*4+6;") == grml::Expression(
+    grml::BinaryOperation(grml::BinaryOperator::ADD, grml::BinaryOperation(grml::BinaryOperator::MULTIPLY, grml::Literal(2), grml::Literal(4)), grml::Literal(6))
+  ));
+  BOOST_TEST(parse("2+4*6;") == grml::Expression(
+    grml::BinaryOperation(grml::BinaryOperator::ADD, grml::Literal(2), grml::BinaryOperation(grml::BinaryOperator::MULTIPLY, grml::Literal(4), grml::Literal(6)))
+  ));
+  BOOST_TEST(parse("2*(4+6);") == grml::Expression(
+    grml::BinaryOperation(grml::BinaryOperator::MULTIPLY, grml::Literal(2), grml::BinaryOperation(grml::BinaryOperator::ADD, grml::Literal(4), grml::Literal(6)))
+  ));
+  BOOST_TEST(parse("(2+4)*6;") == grml::Expression(
+    grml::BinaryOperation(grml::BinaryOperator::MULTIPLY, grml::BinaryOperation(grml::BinaryOperator::ADD, grml::Literal(2), grml::Literal(4)), grml::Literal(6))
   ));
 }
