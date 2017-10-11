@@ -30,12 +30,12 @@ namespace grml
         
         Identifier() {}
         Identifier(std::string n) : name(std::move(n)) {}
-    };
     
-    bool operator == (const Identifier& lhs, const Identifier& rhs)
-    {
-        return lhs.name == rhs.name;
-    }
+        friend bool operator == (const Identifier& lhs, const Identifier& rhs)
+        {
+            return lhs.name == rhs.name;
+        }
+    };
 
     struct UnaryOperation;
     struct BinaryOperation;
@@ -56,12 +56,12 @@ namespace grml
         
         UnaryOperation() {}
         UnaryOperation(UnaryOperator o, Expression r) : op(o), rhs(std::move(r)) {}
-    };
     
-    bool operator == (const UnaryOperation& lhs, const UnaryOperation& rhs)
-    {
-        return lhs.op == rhs.op && lhs.rhs == rhs.rhs;
-    }
+        friend bool operator == (const UnaryOperation& lhs, const UnaryOperation& rhs)
+        {
+            return lhs.op == rhs.op && lhs.rhs == rhs.rhs;
+        }
+    };
 
     struct BinaryOperation
     {
@@ -71,12 +71,12 @@ namespace grml
 
         BinaryOperation() {}
         BinaryOperation(BinaryOperator o, Expression l, Expression r) : op(o), lhs(std::move(l)), rhs(std::move(r)) {}
+    
+        friend bool operator == (const BinaryOperation& lhs, const BinaryOperation& rhs)
+        {
+            return lhs.op == rhs.op && lhs.lhs == rhs.lhs && lhs.rhs == rhs.rhs;
+        }
     };
-
-    bool operator == (const BinaryOperation& lhs, const BinaryOperation& rhs)
-    {
-        return lhs.op == rhs.op && lhs.lhs == rhs.lhs && lhs.rhs == rhs.rhs;
-    }
 
     struct ValueDeclaration
     {
@@ -85,12 +85,12 @@ namespace grml
 
         ValueDeclaration() {}
         ValueDeclaration(Identifier id, Expression e) : identifier(std::move(id)), expression(std::move(e)) {}
-    };
     
-    bool operator == (const ValueDeclaration& lhs, const ValueDeclaration& rhs)
-    {
-        return lhs.identifier == rhs.identifier && lhs.expression == rhs.expression;
-    }
+        friend bool operator == (const ValueDeclaration& lhs, const ValueDeclaration& rhs)
+        {
+            return lhs.identifier == rhs.identifier && lhs.expression == rhs.expression;
+        }
+    };
 
     using Declaration = boost::variant<ValueDeclaration>;
 
@@ -101,10 +101,10 @@ namespace grml
 
         LetConstruct() {}
         LetConstruct(std::vector<Declaration> ds, Expression e) : declarations(std::move(ds)), expression(std::move(e)) {}
-    };
-    
-    bool operator == (const LetConstruct& lhs, const LetConstruct& rhs)
-    {
-        return lhs.declarations == rhs.declarations && lhs.expression == rhs.expression;
-    }
+        
+        friend bool operator == (const LetConstruct& lhs, const LetConstruct& rhs)
+        {
+            return lhs.declarations == rhs.declarations && lhs.expression == rhs.expression;
+        }
+    };  
 }
