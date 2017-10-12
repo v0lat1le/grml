@@ -57,6 +57,8 @@ BOOST_AUTO_TEST_CASE(test_expressions)
   BOOST_TEST(parse("bob;") == grml::Expression(grml::Identifier("bob")));
 
   BOOST_TEST(parse("let in true end;") == grml::Expression(grml::LetConstruct({}, grml::Literal(true))));
+  BOOST_TEST(parse("2 + let in true end;") == grml::Expression(grml::BinaryOperation(grml::BinaryOperator::ADD, grml::Literal(2), grml::LetConstruct({}, grml::Literal(true)))));
+  BOOST_TEST(parse("let in true end + 2;") == grml::Expression(grml::BinaryOperation(grml::BinaryOperator::ADD, grml::LetConstruct({}, grml::Literal(true)), grml::Literal(2))));
   BOOST_TEST(parse("let val x = 5 in x - y end;") == grml::Expression(
     grml::LetConstruct(
       {grml::VariableDeclaration(grml::Identifier("x"), grml::Literal(5))},
@@ -79,6 +81,8 @@ BOOST_AUTO_TEST_CASE(test_expressions)
   ));
 
   BOOST_TEST(parse("fun();") == grml::Expression(grml::FunctionCall(grml::Identifier("fun"), {})));
+  BOOST_TEST(parse("2 + fun();") == grml::Expression(grml::BinaryOperation(grml::BinaryOperator::ADD, grml::Literal(2), grml::FunctionCall(grml::Identifier("fun"), {}))));
+  BOOST_TEST(parse("fun() + 2;") == grml::Expression(grml::BinaryOperation(grml::BinaryOperator::ADD, grml::FunctionCall(grml::Identifier("fun"), {}), grml::Literal(2))));
   BOOST_TEST(parse("fun(1, true, 0.5, x);") == grml::Expression(grml::FunctionCall(grml::Identifier("fun"), {
     grml::Literal(1), grml::Literal(true), grml::Literal(0.5), grml::Identifier("x")})));
 }

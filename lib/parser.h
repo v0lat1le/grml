@@ -23,7 +23,7 @@ namespace grml
             quoted_string %= qi::lexeme['"' >> +(ascii::char_ - '"') >> '"'];
             literal = strict_double | qi::int_ | qi::bool_;
             identifier = qi::as_string[qi::lexeme[ascii::char_("a-zA-Z") >> *ascii::char_("0-9a-zA-Z")]];
-            simple = '(' >> expression >> ')' | literal | identifier;
+            simple = '(' >> expression >> ')' | literal | letConstruct | funcCall | identifier;
             valueDecl = ("val" >> identifier >> "=" >> expression)[qi::_val = phx::construct<VariableDeclaration>(qi::_1, qi::_2)];
             
             funcParams = -(identifier % ",");
@@ -46,7 +46,7 @@ namespace grml
             funcArgs = -(expression % ",");
             funcCall = (identifier >> "(" >> funcArgs >> ")")[qi::_val = phx::construct<FunctionCall>(qi::_1, qi::_2)];
 
-            expression = letConstruct | funcCall | addSub;
+            expression = addSub;
             start = expression >> ';';
         }
         qi::symbols<char, BinaryOperator> addSubOp, mulDivModOp;
