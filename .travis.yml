@@ -5,13 +5,56 @@ language: cpp
 addons:
   apt:
     sources:
-      - boost-latest
       - ubuntu-toolchain-r-test
     packages:
-      - g++-5
-      - libboost1.65-all-dev
+      - g++-6
+
+cache:
+  directories:
+    - ${TRAVIS_BUILD_DIR}/deps/boost-1.65.1
+
+matrix:
+  include:
+    - os: linux
+      env: UNIT_TESTS=true COMPILER=g++-6 BOOST_VERSION=1.65.1 BOOST_LIBS=test
+      compiler: gcc
+
+install:
+  - DEPS_DIR="${TRAVIS_BUILD_DIR}/deps"
+  - mkdir -p ${DEPS_DIR} && cd ${DEPS_DIR}
+  - if [[ "${COMPILER}" != "" ]]; then export CXX=${COMPILER}; fi
+  # Boost
+  - |
+    BOOST_DIR=${DEPS_DIR}/boost-${BOOST_VERSION}
+    if [[ -z "$(ls -A ${BOOST_DIR})" ]]; then
+      BOOST_SRC_DIR=/tmp/boost-${BOOST_VERSION}
+      BOOST_URL="http://sourceforge.net/projects/boost/files/boost/${BOOST_VERSION}/boost_${BOOST_VERSION//\./_}.tar.gz"
+      mkdir -p ${BOOST_SRC_DIR}
+      { travis_retry wget -O - ${BOOST_URL} | tar --strip-components=1 -xz -C ${BOOST_SRC_DIR}; } || exit 1
+      (cd ${BOOST_SRC_DIR} && ./bootstrap.sh --prefix=${BOOST_DIR} --with-libraries=${BOOST_LIBS} && ./b2 -d0 install)
+    fi
+    CMAKE_OPTIONS+=" -DBOOST_ROOT=${BOOST_DIR}"
+  # CMake
+  - |
+    if [[ "${TRAVIS_OS_NAME}" == "linux" ]]; then
+      CMAKE_URL="https://cmake.org/files/v3.8/cmake-3.8.0-Linux-x86_64.tar.gz"
+      mkdir cmake && travis_retry wget --no-check-certificate --quiet -O - ${CMAKE_URL} | tar --strip-components=1 -xz -C cmake
+      export PATH=${DEPS_DIR}/cmake/bin:${PATH}
+    else
+      brew upgrade cmake || brew install cmake
+    fi
+  - cmake --version
+  # Compiler
+  - ${CXX} --version
+
+before_script:
+  - mkdir ${TRAVIS_BUILD_DIR}/build
+  - cd ${TRAVIS_BUILD_DIR}/build
+  - cmake .. ${CMAKE_OPTIONS}
 
 script:
-  - CXX=/usr/bin/g++-5 CC=/usr/bin/gcc-5 cmake . 
-  - cmake --build . -- -j2 
-  - ctest -j2
+  - make -j2 -k
+  - |
+    if [[ "${UNIT_TESTS}" == "true"]]; then
+      ctest --output-on-failure -j2
+    fi
