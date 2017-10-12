@@ -12,6 +12,7 @@ include(vendor/boost/CMakeLists.txt)
 ## Libraries
 add_library(parser INTERFACE)
 target_include_directories(parser INTERFACE lib)
+target_link_libraries(parser INTERFACE Boost::boost)
 
 add_library(inferer lib/inferer.cpp)
 target_include_directories(inferer PUBLIC lib)
@@ -19,7 +20,7 @@ target_link_libraries(inferer parser)
 
 # Applications
 add_executable(${PROJECT_NAME} bin/grml.cpp)
-target_link_libraries(${PROJECT_NAME} parser Boost::boost)
+target_link_libraries(${PROJECT_NAME} parser)
 
 # Tests
 include(CTest)
