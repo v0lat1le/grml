@@ -33,9 +33,9 @@ namespace
     };
 
     struct ExpressionInferer : boost::static_visitor<Type> {
-        Lookup lookup;
+        const Lookup& lookup;
 
-        ExpressionInferer(Lookup l) : lookup(std::move(l)) {}
+        ExpressionInferer(const Lookup& l) : lookup(l) {}
 
         Type operator()(Literal         const& e) const { return boost::apply_visitor(LiteralInferer(), e); }
         Type operator()(Identifier      const& e) const { return lookup.at(e); }
