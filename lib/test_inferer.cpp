@@ -20,4 +20,9 @@ BOOST_AUTO_TEST_CASE(test_inferer)
         )
     );
     BOOST_TEST(grml::infer(letx5) == grml::Type(grml::BasicType::INT));
+
+    auto add35 = grml::Expression(
+        grml::BinaryOperation(grml::BinaryOperator::ADD, grml::Literal(3), grml::Literal(5))
+    );
+    BOOST_TEST(grml::infer(add35) == grml::Type(grml::BasicType::INT));
 }

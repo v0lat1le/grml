@@ -19,6 +19,14 @@ namespace
 
     Type inferHelper(const Expression& expr, const Lookup& lookup);
 
+    Type convertTypes(const Type& lhs, const Type& rhs)
+    {
+        if (lhs == rhs) return lhs;
+        
+        //TODO: can of worms
+        return TypeVariable();
+    }
+
     struct LiteralInferer : boost::static_visitor<Type> {
         Type operator()(int) const { return BasicType::INT; }
         Type operator()(bool) const { return BasicType::BOOL; }
@@ -39,8 +47,8 @@ namespace
 
         Type operator()(Literal         const& e) const { return boost::apply_visitor(LiteralInferer(), e); }
         Type operator()(Identifier      const& e) const { return lookup.at(e); }
-        Type operator()(BinaryOperation const& e) const { return TypeVariable(); }
         Type operator()(UnaryOperation  const& e) const { return inferHelper(e.rhs, lookup); }
+        Type operator()(BinaryOperation const& e) const { return convertTypes(inferHelper(e.lhs, lookup), inferHelper(e.rhs, lookup)); }
         Type operator()(LetConstruct    const& e) const
         {
             auto scope = lookup;
