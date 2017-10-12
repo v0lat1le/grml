@@ -94,7 +94,22 @@ namespace grml
         }
     };
 
-    using Declaration = boost::variant<VariableDeclaration>;
+    struct FunctionDeclaration
+    {
+        Identifier name;
+        std::vector<Identifier> parameters;
+        Expression expression;
+        
+        FunctionDeclaration() {}
+        FunctionDeclaration(Identifier n, std::vector<Identifier> ps, Expression e) : name(std::move(n)), parameters(std::move(ps)), expression(std::move(e)) {}
+
+        friend bool operator == (const FunctionDeclaration& lhs, const FunctionDeclaration& rhs)
+        {
+            return lhs.name == rhs.name && lhs.parameters == rhs.parameters && lhs.expression == rhs.expression;
+        }
+    };
+
+    using Declaration = boost::variant<VariableDeclaration, FunctionDeclaration>;
 
     struct LetConstruct
     {

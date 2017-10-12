@@ -63,4 +63,11 @@ BOOST_AUTO_TEST_CASE(test_expressions)
       grml::BinaryOperation(grml::BinaryOperator::SUBTRACT, grml::Identifier("x"), grml::Identifier("y"))
     )
   ));
+
+  BOOST_TEST(parse("let fun x(p) = 7 in true end;") == grml::Expression(
+    grml::LetConstruct(
+      {grml::FunctionDeclaration(grml::Identifier("x"), {grml::Identifier("p")}, grml::Literal(7))},
+      grml::Literal(true)
+    )
+  ));
 }
