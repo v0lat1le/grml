@@ -15,14 +15,16 @@ matrix:
           sources:
             - ubuntu-toolchain-r-test
           packages:
-            - g++-6
+            - g++-7
       env:
         - UNIT_TESTS=true
-        - MATRIX_EVAL="CC=gcc-6 && CXX=g++-6"
+        - MATRIX_EVAL="CC=gcc-7 && CXX=g++-7"
         - BOOST_VERSION=1.65.1 BOOST_LIBS=test 
 
 before_install:
-    - eval "${MATRIX_EVAL}"
+  - eval "${MATRIX_EVAL}"
+  - ${CC} --version
+  - ${CXX} --version
 
 install:
   - DEPS_DIR="${TRAVIS_BUILD_DIR}/deps"
@@ -35,7 +37,7 @@ install:
       BOOST_URL="http://sourceforge.net/projects/boost/files/boost/${BOOST_VERSION}/boost_${BOOST_VERSION//\./_}.tar.gz"
       mkdir -p ${BOOST_SRC_DIR}
       { travis_retry wget -O - ${BOOST_URL} | tar --strip-components=1 -xz -C ${BOOST_SRC_DIR}; } || exit 1
-      (cd ${BOOST_SRC_DIR} && ./bootstrap.sh --prefix=${BOOST_DIR} --with-libraries=${BOOST_LIBS} && ./b2 install)
+      (cd ${BOOST_SRC_DIR} && ./bootstrap.sh --prefix=${BOOST_DIR} --with-libraries=${BOOST_LIBS} && ./b2 -d0 install)
     fi
     CMAKE_OPTIONS+=" -DBOOST_ROOT=${BOOST_DIR}"
   # CMake
@@ -48,8 +50,6 @@ install:
       brew upgrade cmake || brew install cmake
     fi
   - cmake --version
-  # Compiler
-  - ${CXX} --version
 
 before_script:
   - mkdir ${TRAVIS_BUILD_DIR}/build
