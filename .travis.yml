@@ -2,13 +2,6 @@ dist: trusty
 sudo: false
 language: cpp
 
-addons:
-  apt:
-    sources:
-      - ubuntu-toolchain-r-test
-    packages:
-      - g++-6
-
 cache:
   directories:
     - ${TRAVIS_BUILD_DIR}/deps/boost-1.65.1
@@ -16,13 +9,24 @@ cache:
 matrix:
   include:
     - os: linux
-      env: UNIT_TESTS=true COMPILER=g++-6 BOOST_VERSION=1.65.1 BOOST_LIBS=test
       compiler: gcc
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - g++-6
+      env:
+        - UNIT_TESTS=true
+        - MATRIX_EVAL="CC=gcc-6 && CXX=g++-6"
+        - BOOST_VERSION=1.65.1 BOOST_LIBS=test 
+
+before_install:
+    - eval "${MATRIX_EVAL}"
 
 install:
   - DEPS_DIR="${TRAVIS_BUILD_DIR}/deps"
   - mkdir -p ${DEPS_DIR} && cd ${DEPS_DIR}
-  - if [[ "${COMPILER}" != "" ]]; then export CXX=${COMPILER}; fi
   # Boost
   - |
     BOOST_DIR=${DEPS_DIR}/boost-${BOOST_VERSION}
@@ -31,7 +35,7 @@ install:
       BOOST_URL="http://sourceforge.net/projects/boost/files/boost/${BOOST_VERSION}/boost_${BOOST_VERSION//\./_}.tar.gz"
       mkdir -p ${BOOST_SRC_DIR}
       { travis_retry wget -O - ${BOOST_URL} | tar --strip-components=1 -xz -C ${BOOST_SRC_DIR}; } || exit 1
-      (cd ${BOOST_SRC_DIR} && ./bootstrap.sh --prefix=${BOOST_DIR} --with-libraries=${BOOST_LIBS} && ./b2 -d0 install)
+      (cd ${BOOST_SRC_DIR} && ./bootstrap.sh --prefix=${BOOST_DIR} --with-libraries=${BOOST_LIBS} && ./b2 install)
     fi
     CMAKE_OPTIONS+=" -DBOOST_ROOT=${BOOST_DIR}"
   # CMake
@@ -55,6 +59,6 @@ before_script:
 script:
   - make -j2 -k
   - |
-    if [[ "${UNIT_TESTS}" == "true"]]; then
+    if [[ "${UNIT_TESTS}" == "true" ]]; then
       ctest --output-on-failure -j2
     fi
