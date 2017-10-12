@@ -17,6 +17,8 @@ namespace
 
     using Lookup = std::unordered_map<Identifier, Type, IdHasher>;
 
+    Type inferHelper(const Expression& expr, const Lookup& lookup);
+
     struct LiteralInferer : boost::static_visitor<Type> {
         Type operator()(int) const { return BasicType::INT; }
         Type operator()(bool) const { return BasicType::BOOL; }
@@ -37,8 +39,8 @@ namespace
 
         Type operator()(Literal         const& e) const { return boost::apply_visitor(LiteralInferer(), e); }
         Type operator()(Identifier      const& e) const { return lookup.at(e); }
-        Type operator()(UnaryOperation  const& e) const { return grml::infer(e.rhs); }
         Type operator()(BinaryOperation const& e) const { return TypeVariable(); }
+        Type operator()(UnaryOperation  const& e) const { return inferHelper(e.rhs, lookup); }
         Type operator()(LetConstruct    const& e) const
         {
             auto scope = lookup;
@@ -47,14 +49,18 @@ namespace
                 auto [ id, t ] = boost::apply_visitor(DeclarationInferer{scope}, decl);
                 scope.insert_or_assign(std::move(id), std::move(t));
             }
-            return boost::apply_visitor(ExpressionInferer(std::move(scope)), e.expression);
+            return inferHelper(e.expression, std::move(scope));
         }
     };
 
     std::pair<Identifier, Type> DeclarationInferer::operator()(const VariableDeclaration& d) const
     {
-        auto t = boost::apply_visitor(ExpressionInferer(lookup), d.expression);
-        return std::make_pair(d.identifier, t);
+        return std::make_pair(d.identifier, inferHelper(d.expression, lookup));
+    }
+
+    Type inferHelper(const Expression& expr, const Lookup& lookup)
+    {
+        return boost::apply_visitor(ExpressionInferer(lookup), expr);
     }
 }
 
@@ -62,6 +68,6 @@ namespace grml
 {
     Type infer(const Expression& expr)
     {
-      return boost::apply_visitor(ExpressionInferer(Lookup()), expr);
+      return inferHelper(expr, Lookup());
     }
 }
