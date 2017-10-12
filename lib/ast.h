@@ -1,6 +1,8 @@
 #pragma once
 
 #include <boost/variant.hpp>
+#include <vector>
+#include <string>
 
 namespace grml
 {
