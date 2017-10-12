@@ -54,7 +54,7 @@ install:
       pushd ${BOOST_SRC_DIR}
       echo "using clang : : ${CXX} ;" > project-config.jam
       ./bootstrap.sh --prefix=${BOOST_DIR} --with-libraries=${BOOST_LIBS} --with-toolset=clang
-      ./b2 toolset=clang cxxflags=-std=c++1y install
+      ./b2 -d0 toolset=clang cxxflags=-std=c++1y install
       popd
     fi
     CMAKE_OPTIONS+=" -DBOOST_ROOT=${BOOST_DIR}"
