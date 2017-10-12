@@ -68,7 +68,7 @@ namespace
 
     std::pair<Identifier, Type> DeclarationInferer::operator()(const VariableDeclaration& d) const
     {
-        return std::make_pair(d.identifier, inferHelper(d.expression, lookup));
+        return std::make_pair(d.name, inferHelper(d.expression, lookup));
     }
 
     std::pair<Identifier, Type> DeclarationInferer::operator()(const FunctionDeclaration& d) const

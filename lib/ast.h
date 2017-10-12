@@ -84,15 +84,15 @@ namespace grml
 
     struct VariableDeclaration
     {
-        Identifier identifier;
+        Identifier name;
         Expression expression;
 
         VariableDeclaration() {}
-        VariableDeclaration(Identifier id, Expression e) : identifier(std::move(id)), expression(std::move(e)) {}
+        VariableDeclaration(Identifier n, Expression e) : name(std::move(n)), expression(std::move(e)) {}
     
         friend bool operator == (const VariableDeclaration& lhs, const VariableDeclaration& rhs)
         {
-            return lhs.identifier == rhs.identifier && lhs.expression == rhs.expression;
+            return lhs.name == rhs.name && lhs.expression == rhs.expression;
         }
     };
 
