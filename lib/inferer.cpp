@@ -60,6 +60,10 @@ namespace
             }
             return inferHelper(e.expression, std::move(scope));
         }
+        Type operator()(FunctionCall    const& e) const
+        {
+            return TypeVariable();
+        }
     };
 
     std::pair<Identifier, Type> DeclarationInferer::operator()(const VariableDeclaration& d) const
