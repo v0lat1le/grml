@@ -25,7 +25,9 @@ namespace grml
             identifier = qi::as_string[qi::lexeme[ascii::char_("a-zA-Z") >> *ascii::char_("0-9a-zA-Z")]];
             simple = '(' >> expression >> ')' | literal | identifier;
             valueDecl = ("val" >> identifier >> "=" >> expression)[qi::_val = phx::construct<VariableDeclaration>(qi::_1, qi::_2)];
-            funcDecl = ("fun" >> identifier >> "(" >> *identifier >> ")" >> "=" >> expression)[qi::_val = phx::construct<FunctionDeclaration>(qi::_1, qi::_2, qi::_3)];
+            
+            funcParams = -(identifier % ",");
+            funcDecl = ("fun" >> identifier >> "(" >> funcParams >> ")" >> "=" >> expression)[qi::_val = phx::construct<FunctionDeclaration>(qi::_1, qi::_2, qi::_3)];
             declaration = valueDecl | funcDecl;
             letConstruct = ("let" >> *declaration >> "in" >> expression >> "end")[qi::_val = phx::construct<LetConstruct>(qi::_1, qi::_2)];
 
@@ -48,6 +50,7 @@ namespace grml
         qi::rule<Iterator, Literal, ascii::space_type> literal;
         qi::rule<Iterator, Identifier, ascii::space_type> identifier;
         qi::rule<Iterator, VariableDeclaration, ascii::space_type> valueDecl;
+        qi::rule<Iterator, std::vector<Identifier>(), ascii::space_type> funcParams;
         qi::rule<Iterator, FunctionDeclaration, ascii::space_type> funcDecl;
         qi::rule<Iterator, Declaration, ascii::space_type> declaration;
         ExprRule simple, letConstruct, addSub, mulDivMod, expression, start;
