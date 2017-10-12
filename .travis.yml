@@ -21,7 +21,6 @@ matrix:
         - MATRIX_EVAL="CC=gcc-7 && CXX=g++-7"
         - BOOST_VERSION=1.65.1
         - BOOST_LIBS=test
-        - 'BOOST_USER_CONFIG="using gcc : : g++-7 ;"'
     - os: linux
       compiler: clang
       addons:
@@ -35,7 +34,6 @@ matrix:
         - MATRIX_EVAL="CC=clang-5.0 && CXX=clang++-5.0"
         - BOOST_VERSION=1.65.1
         - BOOST_LIBS=test
-        - 'BOOST_USER_CONFIG="using clang : : clang++-5.0 ;"'
 
 before_install:
   - eval "${MATRIX_EVAL}"
@@ -53,8 +51,11 @@ install:
       BOOST_URL="http://sourceforge.net/projects/boost/files/boost/${BOOST_VERSION}/boost_${BOOST_VERSION//\./_}.tar.gz"
       mkdir -p ${BOOST_SRC_DIR}
       { travis_retry wget -O - ${BOOST_URL} | tar --strip-components=1 -xz -C ${BOOST_SRC_DIR}; } || exit 1
-      echo ${BOOST_USER_CONFIG} > $HOME/user-config.jam
-      (cd ${BOOST_SRC_DIR} && ./bootstrap.sh --prefix=${BOOST_DIR} --with-libraries=${BOOST_LIBS} && ./b2 -d0 install)
+      pushd ${BOOST_SRC_DIR}
+      echo "using clang : : ${CXX} ;" > project-config.jam
+      ./bootstrap.sh --prefix=${BOOST_DIR} --with-libraries=${BOOST_LIBS} --with-toolset=clang
+      ./b2 toolset=clang cxxflags=-std=c++1y install
+      popd
     fi
     CMAKE_OPTIONS+=" -DBOOST_ROOT=${BOOST_DIR}"
   # CMake
