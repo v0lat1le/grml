@@ -19,5 +19,19 @@ namespace grml
         }
     };
 
-    using Type = boost::variant<BasicType, TypeVariable>;
+    struct FunctionType;
+
+    using Type = boost::variant<
+        BasicType,
+        TypeVariable,
+        boost::recursive_wrapper<FunctionType>
+    >;
+
+    struct FunctionType
+    {
+        friend bool operator==(const FunctionType& lhs, const FunctionType& rhs)
+        {
+            return true;
+        }
+    };
 }

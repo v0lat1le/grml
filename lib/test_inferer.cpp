@@ -25,4 +25,12 @@ BOOST_AUTO_TEST_CASE(test_inferer)
         grml::BinaryOperation(grml::BinaryOperator::ADD, grml::Literal(3), grml::Literal(5))
     );
     BOOST_TEST(grml::infer(add35) == grml::Type(grml::BasicType::INT));
+
+    auto letfun = grml::Expression(
+        grml::LetConstruct(
+          {grml::FunctionDeclaration(grml::Identifier("x"), {grml::Identifier("p")}, grml::Literal(5))},
+          grml::Identifier("x")
+        )
+    );
+    BOOST_TEST(grml::infer(letfun) == grml::Type(grml::FunctionType()));
 }

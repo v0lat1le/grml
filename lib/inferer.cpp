@@ -38,6 +38,7 @@ namespace
 
         DeclarationInferer(const Lookup& l) : lookup(l) {}
         std::pair<Identifier, Type> operator()(const VariableDeclaration& d) const;
+        std::pair<Identifier, Type> operator()(const FunctionDeclaration& d) const;
     };
 
     struct ExpressionInferer : boost::static_visitor<Type> {
@@ -64,6 +65,11 @@ namespace
     std::pair<Identifier, Type> DeclarationInferer::operator()(const VariableDeclaration& d) const
     {
         return std::make_pair(d.identifier, inferHelper(d.expression, lookup));
+    }
+
+    std::pair<Identifier, Type> DeclarationInferer::operator()(const FunctionDeclaration& d) const
+    {
+        return std::make_pair(d.name, FunctionType());
     }
 
     Type inferHelper(const Expression& expr, const Lookup& lookup)
