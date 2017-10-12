@@ -42,13 +42,15 @@ namespace grml
     struct UnaryOperation;
     struct BinaryOperation;
     struct LetConstruct;
+    struct FunctionCall;
 
     using Expression = boost::variant<
         Literal,
         Identifier,
         boost::recursive_wrapper<UnaryOperation>,
         boost::recursive_wrapper<BinaryOperation>,
-        boost::recursive_wrapper<LetConstruct>
+        boost::recursive_wrapper<LetConstruct>,
+        boost::recursive_wrapper<FunctionCall>
     >;
 
     struct UnaryOperation
@@ -123,5 +125,19 @@ namespace grml
         {
             return lhs.declarations == rhs.declarations && lhs.expression == rhs.expression;
         }
-    };  
+    };
+
+    struct FunctionCall
+    {
+        Identifier name;
+        std::vector<Expression> arguments;
+
+        FunctionCall() {}
+        FunctionCall(Identifier n, std::vector<Expression> args) : name(std::move(n)), arguments(std::move(args)) {}
+        
+        friend bool operator == (const FunctionCall& lhs, const FunctionCall& rhs)
+        {
+            return lhs.name == rhs.name && lhs.arguments == rhs.arguments;
+        }
+    };
 }

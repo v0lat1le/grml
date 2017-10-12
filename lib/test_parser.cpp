@@ -77,4 +77,8 @@ BOOST_AUTO_TEST_CASE(test_expressions)
       grml::Literal(true)
     )
   ));
+
+  BOOST_TEST(parse("fun();") == grml::Expression(grml::FunctionCall(grml::Identifier("fun"), {})));
+  BOOST_TEST(parse("fun(1, true, 0.5, x);") == grml::Expression(grml::FunctionCall(grml::Identifier("fun"), {
+    grml::Literal(1), grml::Literal(true), grml::Literal(0.5), grml::Identifier("x")})));
 }

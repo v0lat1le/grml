@@ -42,8 +42,11 @@ namespace grml
 
             mulDivMod = simple[qi::_val = qi::_1] >> -(mulDivModOp >> mulDivMod)[qi::_val = phx::construct<BinaryOperation>(qi::_1, qi::_val, qi::_2)];
             addSub = mulDivMod[qi::_val = qi::_1] >> -(addSubOp >> addSub)[qi::_val = phx::construct<BinaryOperation>(qi::_1, qi::_val, qi::_2)];
+            
+            funcArgs = -(expression % ",");
+            funcCall = (identifier >> "(" >> funcArgs >> ")")[qi::_val = phx::construct<FunctionCall>(qi::_1, qi::_2)];
 
-            expression = letConstruct | addSub;
+            expression = letConstruct | funcCall | addSub;
             start = expression >> ';';
         }
         qi::symbols<char, BinaryOperator> addSubOp, mulDivModOp;
@@ -53,7 +56,8 @@ namespace grml
         qi::rule<Iterator, std::vector<Identifier>(), ascii::space_type> funcParams;
         qi::rule<Iterator, FunctionDeclaration, ascii::space_type> funcDecl;
         qi::rule<Iterator, Declaration, ascii::space_type> declaration;
-        ExprRule simple, letConstruct, addSub, mulDivMod, expression, start;
+        qi::rule<Iterator, std::vector<Expression>(), ascii::space_type> funcArgs;
+        ExprRule simple, letConstruct, addSub, mulDivMod, funcCall, expression, start;
     
         qi::rule<Iterator, std::string(), ascii::space_type> quoted_string;
     };
