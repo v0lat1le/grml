@@ -24,7 +24,7 @@ namespace grml
             literal = strict_double | qi::int_ | qi::bool_;
             identifier = qi::as_string[qi::lexeme[ascii::char_("a-zA-Z") >> *ascii::char_("0-9a-zA-Z")]];
             simple = '(' >> expression >> ')' | literal | identifier;
-            valueDecl = ("val" >> identifier >> "=" >> expression)[qi::_val = phx::construct<ValueDeclaration>(qi::_1, qi::_2)];
+            valueDecl = ("val" >> identifier >> "=" >> expression)[qi::_val = phx::construct<VariableDeclaration>(qi::_1, qi::_2)];
             declaration = valueDecl;
             letConstruct = ("let" >> *declaration >> "in" >> expression >> "end")[qi::_val = phx::construct<LetConstruct>(qi::_1, qi::_2)];
 
@@ -46,7 +46,7 @@ namespace grml
         qi::symbols<char, BinaryOperator> addSubOp, mulDivModOp;
         qi::rule<Iterator, Literal, ascii::space_type> literal;
         qi::rule<Iterator, Identifier, ascii::space_type> identifier;
-        qi::rule<Iterator, ValueDeclaration, ascii::space_type> valueDecl;
+        qi::rule<Iterator, VariableDeclaration, ascii::space_type> valueDecl;
         qi::rule<Iterator, Declaration, ascii::space_type> declaration;
         ExprRule simple, letConstruct, addSub, mulDivMod, expression, start;
     

@@ -80,21 +80,21 @@ namespace grml
         }
     };
 
-    struct ValueDeclaration
+    struct VariableDeclaration
     {
         Identifier identifier;
         Expression expression;
 
-        ValueDeclaration() {}
-        ValueDeclaration(Identifier id, Expression e) : identifier(std::move(id)), expression(std::move(e)) {}
+        VariableDeclaration() {}
+        VariableDeclaration(Identifier id, Expression e) : identifier(std::move(id)), expression(std::move(e)) {}
     
-        friend bool operator == (const ValueDeclaration& lhs, const ValueDeclaration& rhs)
+        friend bool operator == (const VariableDeclaration& lhs, const VariableDeclaration& rhs)
         {
             return lhs.identifier == rhs.identifier && lhs.expression == rhs.expression;
         }
     };
 
-    using Declaration = boost::variant<ValueDeclaration>;
+    using Declaration = boost::variant<VariableDeclaration>;
 
     struct LetConstruct
     {

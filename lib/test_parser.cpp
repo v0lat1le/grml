@@ -59,7 +59,7 @@ BOOST_AUTO_TEST_CASE(test_expressions)
   BOOST_TEST(parse("let in true end;") == grml::Expression(grml::LetConstruct({}, grml::Literal(true))));
   BOOST_TEST(parse("let val x = 5 in x - y end;") == grml::Expression(
     grml::LetConstruct(
-      {grml::ValueDeclaration(grml::Identifier("x"), grml::Literal(5))},
+      {grml::VariableDeclaration(grml::Identifier("x"), grml::Literal(5))},
       grml::BinaryOperation(grml::BinaryOperator::SUBTRACT, grml::Identifier("x"), grml::Identifier("y"))
     )
   ));
