@@ -39,6 +39,7 @@ before_install:
   - eval "${MATRIX_EVAL}"
   - ${CC} --version
   - ${CXX} --version
+  - ${CXX} -E -x c++ - -v < /dev/null
 
 install:
   - DEPS_DIR="${TRAVIS_BUILD_DIR}/deps"
