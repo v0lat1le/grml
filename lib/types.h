@@ -13,10 +13,17 @@ namespace grml
 
     struct TypeVariable
     {
-        friend bool operator==(const TypeVariable&, const TypeVariable&)
+        int id;
+
+        TypeVariable() : id(counter++) {}
+        TypeVariable(int i) : id(i) {}
+
+        friend bool operator==(const TypeVariable& lhs, const TypeVariable& rhs)
         {
-            return false;
+            return lhs.id == rhs.id;
         }
+    private:
+        inline static std::atomic_int64_t counter{0};
     };
 
     struct FunctionType;
@@ -29,9 +36,16 @@ namespace grml
 
     struct FunctionType
     {
+        using Parameters = std::vector<Type>;
+
+        Type result;
+        Parameters parameters;
+
+        FunctionType(Type r, Parameters ps) : result(std::move(r)), parameters(std::move(ps)) {}
+
         friend bool operator==(const FunctionType& lhs, const FunctionType& rhs)
         {
-            return true;
+            return lhs.result == rhs.result && lhs.parameters == rhs.parameters;
         }
     };
 }

@@ -73,7 +73,15 @@ namespace
 
     std::pair<Identifier, Type> DeclarationInferer::operator()(const FunctionDeclaration& d) const
     {
-        return std::make_pair(d.name, FunctionType());
+        auto scope = lookup;
+        FunctionType::Parameters params;
+        for (const auto& param: d.parameters)
+        {
+            params.push_back(TypeVariable());
+            scope.insert_or_assign(param, params.back());
+        }
+        Type result = inferHelper(d.expression, std::move(scope));
+        return std::make_pair(d.name, FunctionType(std::move(result), std::move(params)));
     }
 
     Type inferHelper(const Expression& expr, const Lookup& lookup)
