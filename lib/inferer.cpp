@@ -60,9 +60,20 @@ namespace
             }
             return inferHelper(e.expression, std::move(scope));
         }
-        Type operator()(FunctionCall    const& e) const
+        Type operator()(FunctionCall const& e) const
         {
-            return TypeVariable();
+            TypeVariable result;
+
+            FunctionType::Parameters params;
+            for (const auto& arg: e.arguments)
+            {
+                params.push_back(inferHelper(arg, lookup));
+            }
+            auto rhs = FunctionType(result, params);
+            auto lhs = lookup.at(e.name);
+            // TODO: Constraint lhs = rhs
+
+            return result;
         }
     };
 
