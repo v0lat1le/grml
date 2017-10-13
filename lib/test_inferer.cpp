@@ -15,8 +15,8 @@ BOOST_AUTO_TEST_CASE(test_inferer)
 
     auto letx5 = grml::Expression(
         grml::LetConstruct(
-          {grml::VariableDeclaration(grml::Identifier("x"), grml::Literal(5))},
-          grml::Identifier("x")
+            { grml::VariableDeclaration(grml::Identifier("x"), grml::Literal(5)) },
+            grml::Identifier("x")
         )
     );
     BOOST_TEST(grml::infer(letx5) == grml::Type(grml::BasicType::INT));
@@ -28,9 +28,9 @@ BOOST_AUTO_TEST_CASE(test_inferer)
 
     auto letfun = grml::Expression(
         grml::LetConstruct(
-          {grml::FunctionDeclaration(grml::Identifier("x"), {grml::Identifier("p")}, grml::Literal(5))},
-          grml::Identifier("x")
+            { grml::FunctionDeclaration(grml::Identifier("x"), { grml::Identifier("p") }, grml::Literal(5)) },
+            grml::Identifier("x")
         )
     );
-    BOOST_TEST(grml::infer(letfun) == grml::Type(grml::FunctionType(grml::BasicType::INT, {grml::TypeVariable(0)})));
+    BOOST_TEST(grml::infer(letfun) == grml::Type(grml::FunctionType(grml::BasicType::INT, { grml::TypeVariable(0) })));
 }

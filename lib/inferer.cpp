@@ -46,11 +46,11 @@ namespace
 
         ExpressionInferer(const Lookup& l) : lookup(l) {}
 
-        Type operator()(Literal         const& e) const { return boost::apply_visitor(LiteralInferer(), e); }
-        Type operator()(Identifier      const& e) const { return lookup.at(e); }
-        Type operator()(UnaryOperation  const& e) const { return inferHelper(e.rhs, lookup); }
-        Type operator()(BinaryOperation const& e) const { return convertTypes(inferHelper(e.lhs, lookup), inferHelper(e.rhs, lookup)); }
-        Type operator()(LetConstruct    const& e) const
+        Type operator()(const Literal& e) const { return boost::apply_visitor(LiteralInferer(), e); }
+        Type operator()(const Identifier& e) const { return lookup.at(e); }
+        Type operator()(const UnaryOperation& e) const { return inferHelper(e.rhs, lookup); }
+        Type operator()(const BinaryOperation& e) const { return convertTypes(inferHelper(e.lhs, lookup), inferHelper(e.rhs, lookup)); }
+        Type operator()(const LetConstruct& e) const
         {
             auto scope = lookup;
             for (const auto& decl: e.declarations)
@@ -60,7 +60,7 @@ namespace
             }
             return inferHelper(e.expression, std::move(scope));
         }
-        Type operator()(FunctionCall const& e) const
+        Type operator()(const FunctionCall& e) const
         {
             TypeVariable result;
 
@@ -105,6 +105,6 @@ namespace grml
 {
     Type infer(const Expression& expr)
     {
-      return inferHelper(expr, Lookup());
+        return inferHelper(expr, Lookup());
     }
 }
