@@ -3,6 +3,7 @@
 #include <boost/variant.hpp>
 #include <atomic>
 #include <vector>
+#include <unordered_map>
 
 namespace grml
 {
@@ -50,4 +51,18 @@ namespace grml
             return lhs.result == rhs.result && lhs.parameters == rhs.parameters;
         }
     };
+
+    struct TypeVariableHasher
+    {
+        std::size_t operator()(const TypeVariable& tv) const
+        {
+            return tv.id;
+        }
+    };
+
+    using Substitution = std::unordered_map<TypeVariable, Type, TypeVariableHasher>;
+
+    Substitution unify(const Type& lhs, const Type& rhs);
+    Substitution combine(const Substitution& lhs, const Substitution& rhs);
+    Type substitute(const Type& type, const Substitution& substitution);
 }
