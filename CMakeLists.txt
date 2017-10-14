@@ -19,7 +19,7 @@ add_library(parser INTERFACE)
 target_include_directories(parser INTERFACE lib)
 target_link_libraries(parser INTERFACE Boost::boost)
 
-add_library(inferer lib/inferer.cpp)
+add_library(inferer lib/types.cpp lib/inferer.cpp)
 target_include_directories(inferer PUBLIC lib)
 target_link_libraries(inferer parser)
 

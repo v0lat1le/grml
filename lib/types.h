@@ -15,17 +15,17 @@ namespace grml
 
     struct TypeVariable
     {
-        int id;
+        int64_t id;
 
         TypeVariable() : id(counter++) {}
-        TypeVariable(int i) : id(i) {}
+        TypeVariable(int64_t i) : id(i) {}
 
         friend bool operator==(const TypeVariable& lhs, const TypeVariable& rhs)
         {
             return lhs.id == rhs.id;
         }
     private:
-        inline static std::atomic_int64_t counter{0};
+        static std::atomic_int64_t counter;
     };
 
     struct FunctionType;
