@@ -21,7 +21,7 @@ target_link_libraries(parser INTERFACE Boost::boost)
 
 add_library(inferer lib/types.cpp lib/inferer.cpp)
 target_include_directories(inferer PUBLIC lib)
-target_link_libraries(inferer parser)
+target_link_libraries(inferer PUBLIC parser)
 
 # Applications
 add_executable(${PROJECT_NAME} bin/grml.cpp)
