@@ -3,8 +3,8 @@ image:
 clone_folder: c:\projects\source
 build_script:
 - cmd: >-
-	echo %CD%
-	dir
+    echo %CD%
+    dir
     mkdir mybuild
     cd mybuild
     
