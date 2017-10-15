@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.0.0)
+cmake_minimum_required(VERSION 3.9)
 project(grml VERSION 0.0.0)
 
 ## Compiler
@@ -12,7 +12,7 @@ else()
 endif(MSVC)
 
 ## Project Dependencies
-include(vendor/boost/CMakeLists.txt)
+find_package(Boost 1.64 REQUIRED COMPONENTS unit_test_framework)
 
 ## Libraries
 add_library(parser INTERFACE)
