@@ -38,6 +38,13 @@ target_link_libraries(test_parser
 )
 add_test(NAME test_parser COMMAND test_parser)
 
+add_executable(test_types lib/test_types.cpp)
+target_link_libraries(test_types
+    inferer
+    Boost::unit_test_framework
+)
+add_test(NAME test_types COMMAND test_types)
+
 add_executable(test_inferer lib/test_inferer.cpp)
 target_link_libraries(test_inferer
     inferer
