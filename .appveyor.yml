@@ -3,9 +3,6 @@ image:
 
 clone_folder: c:\projects\source
 
-init:
-  - ps: iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
-
 environment:
   BOOST_ROOT: C:\Libraries\boost_1_64_0
   BOOST_LIBRARYDIR: C:\Libraries\boost_1_64_0\lib64-msvc-14.1
@@ -13,11 +10,9 @@ environment:
 build_script:
     - mkdir C:\projects\build
     - cd C:\projects\build
-    - cmake c:\projects\source -G "Visual Studio 15 Win64"
+    - cmake -D "CMAKE_CXX_FLAGS=/D_HAS_AUTO_PTR_ETC=1 /EHsc" c:\projects\source -G "Visual Studio 15 Win64"
     - cmake --build . --config "Debug"
 
 test_script:
+    - set PATH=%PATH%;%BOOST_LIBRARYDIR%
     - ctest -C Debug
-
-on_finish:
-  - ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
