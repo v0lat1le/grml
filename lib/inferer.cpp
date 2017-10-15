@@ -71,9 +71,10 @@ namespace
             }
             auto rhs = FunctionType(result, params);
             auto lhs = lookup.at(e.name);
-            // TODO: Constraint lhs = rhs
 
-            return result;
+            // TODO: return constraint lhs = rhs
+            auto substitution = unify(lhs, rhs);
+            return substitute(result, substitution);
         }
     };
 
