@@ -1,0 +1,18 @@
+image:
+  - Visual Studio 2017
+
+clone_folder: c:\projects\source
+
+environment:
+  BOOST_ROOT: C:\Libraries\boost_1_64_0
+  BOOST_LIBRARYDIR: C:\Libraries\boost_1_64_0\lib64-msvc-14.1
+
+build_script:
+    - mkdir C:\projects\build
+    - cd C:\projects\build
+    - cmake -D "CMAKE_CXX_FLAGS=/D_HAS_AUTO_PTR_ETC=1 /EHsc" c:\projects\source -G "Visual Studio 15 Win64"
+    - cmake --build . --config "Debug"
+
+test_script:
+    - set PATH=%PATH%;%BOOST_LIBRARYDIR%
+    - ctest -C Debug
