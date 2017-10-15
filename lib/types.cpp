@@ -40,9 +40,9 @@ grml::Type grml::substitute(const grml::Type& type, const grml::Substitution& su
 
 grml::Substitution grml::combine(const grml::Substitution& lhs, const grml::Substitution& rhs)
 {
-	auto result = lhs;
-	for (const auto& [tv, t]: rhs) {
-		result.insert_or_assign(tv, substitute(t, lhs));
-	}
-	return result;
+    auto result = lhs;
+    for (const auto& [tv, t]: rhs) {
+        result.insert_or_assign(tv, substitute(t, lhs));
+    }
+    return result;
 }
