@@ -17,7 +17,9 @@ namespace
         }
         Type operator()(const TypeVariable& t) const
         {
-            return substitution.at(t);
+            auto r = substitution.find(t);
+            if (r != substitution.end()) return r->second;
+            return t;
         }
         Type operator()(const FunctionType& t) const
         {

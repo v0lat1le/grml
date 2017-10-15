@@ -17,6 +17,7 @@ BOOST_AUTO_TEST_CASE(test_substitute)
     BOOST_TEST(grml::substitute(
         grml::FunctionType(tv, {tv}), {{tv, grml::BasicType::INT}}) ==
         grml::Type(grml::FunctionType(grml::BasicType::INT, {grml::BasicType::INT}))
+    BOOST_TEST(grml::substitute(tv, {}) == grml::Type(tv));
     );
 }
 
