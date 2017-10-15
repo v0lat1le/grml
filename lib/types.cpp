@@ -31,6 +31,45 @@ namespace
             return FunctionType(substitute(t.result, substitution), std::move(params));
         }
     };
+
+    struct UnificationVisitor : boost::static_visitor<Substitution>
+    {
+        Substitution operator()(const FunctionType& lhs, const FunctionType& rhs) const
+        {
+            if (lhs.parameters.size() != rhs.parameters.size()) throw std::runtime_error("curry is not supported");
+
+            Substitution params;
+            for (auto i = 0; i < lhs.parameters.size(); ++i)
+            {
+                auto unified = unify(lhs.parameters[i], rhs.parameters[i]);
+                params.insert(unified.begin(), unified.end());
+            }
+            Substitution body = unify(substitute(lhs.result, params), substitute(rhs.result, params));
+
+            return combine(body, params);
+        }
+
+        template<typename LHST, typename RHST>
+        Substitution operator()(const LHST& lhs, const RHST& rhs) const
+        {
+            if constexpr (std::is_same_v<LHST, RHST>)
+            {
+                if (lhs == rhs) return {};
+            }
+            if constexpr (std::is_same_v<LHST, TypeVariable>)
+            {
+                return { { lhs, rhs } };
+            }
+            if constexpr (std::is_same_v<RHST, TypeVariable>)
+            {
+                return { { rhs, lhs } };
+            }
+            else
+            {
+                throw std::runtime_error("incompatible types");
+            }
+        }
+    };
 }
 
 grml::Type grml::substitute(const grml::Type& type, const grml::Substitution& substitution)
@@ -45,4 +84,9 @@ grml::Substitution grml::combine(const grml::Substitution& lhs, const grml::Subs
         result.insert_or_assign(tv, substitute(t, lhs));
     }
     return result;
+}
+
+grml::Substitution grml::unify(const grml::Type& lhs, const grml::Type& rhs)
+{
+    return boost::apply_visitor(UnificationVisitor(), lhs, rhs);
 }

@@ -38,3 +38,17 @@ BOOST_AUTO_TEST_CASE(test_combine)
 
     BOOST_TEST(grml::combine(lhs, rhs) == combined);
 }
+
+BOOST_AUTO_TEST_CASE(test_unify)
+{
+    grml::TypeVariable a, b;
+
+    BOOST_TEST(grml::unify(a, a) == grml::Substitution());
+    BOOST_TEST(grml::unify(a, b) == (grml::Substitution{ { a, b } }));
+    BOOST_TEST(grml::unify(a, grml::BasicType::INT) == (grml::Substitution{ { a, grml::BasicType::INT } }));
+    BOOST_TEST(grml::unify(grml::BasicType::BOOL, b) == (grml::Substitution{ { b, grml::BasicType::BOOL } }));
+
+    BOOST_TEST(grml::unify(grml::FunctionType(a, { a }), grml::FunctionType(b, { grml::BasicType::INT })) ==
+        (grml::Substitution{ { a, grml::BasicType::INT } , { b, grml::BasicType::INT } })
+    );
+}
