@@ -41,4 +41,15 @@ BOOST_AUTO_TEST_CASE(test_inferer)
         )
     );
     BOOST_TEST(grml::infer(funcall) == grml::Type(grml::BasicType::INT));
+
+    auto funcall2 = grml::Expression(
+        grml::LetConstruct(
+            {
+                grml::FunctionDeclaration(grml::Identifier("f"), { grml::Identifier("p") }, grml::Identifier("p")),
+                grml::FunctionDeclaration(grml::Identifier("g"), { grml::Identifier("p") }, grml::FunctionCall(grml::Identifier("f"), { grml::Identifier("p") }))
+            },
+            grml::FunctionCall(grml::Identifier("g"), { grml::Literal(5) })
+        )
+    );
+    BOOST_TEST(grml::infer(funcall2) == grml::Type(grml::BasicType::INT));
 }
