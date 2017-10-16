@@ -44,9 +44,9 @@ namespace
                 auto unified = unify(lhs.parameters[i], rhs.parameters[i]);
                 params.insert(unified.begin(), unified.end());
             }
-            Substitution body = unify(substitute(lhs.result, params), substitute(rhs.result, params));
+            Substitution body = unify(rhs.result, substitute(lhs.result, params));
 
-            return combine(body, params);
+            return body;
         }
 
         template<typename LHST, typename RHST>
@@ -60,9 +60,9 @@ namespace
             {
                 return { { lhs, rhs } };
             }
-            if constexpr (std::is_same_v<RHST, TypeVariable>)
+            if constexpr (std::is_same_v<LHST, BasicType>)
             {
-                return { { rhs, lhs } };
+                return {};
             }
             else
             {
