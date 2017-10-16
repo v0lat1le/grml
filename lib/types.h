@@ -63,6 +63,5 @@ namespace grml
     using Substitution = std::unordered_map<TypeVariable, Type, TypeVariableHasher>;
 
     Substitution unify(const Type& lhs, const Type& rhs);
-    Substitution combine(const Substitution& lhs, const Substitution& rhs);
     Type substitute(const Type& type, const Substitution& substitution);
 }

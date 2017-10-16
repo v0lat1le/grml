@@ -77,15 +77,6 @@ grml::Type grml::substitute(const grml::Type& type, const grml::Substitution& su
     return boost::apply_visitor(SubstitutionVisitor(substitution), type);
 }
 
-grml::Substitution grml::combine(const grml::Substitution& lhs, const grml::Substitution& rhs)
-{
-    auto result = lhs;
-    for (const auto& [tv, t]: rhs) {
-        result.insert_or_assign(tv, substitute(t, lhs));
-    }
-    return result;
-}
-
 grml::Substitution grml::unify(const grml::Type& lhs, const grml::Type& rhs)
 {
     return boost::apply_visitor(UnificationVisitor(), lhs, rhs);
