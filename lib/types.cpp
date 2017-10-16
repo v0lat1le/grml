@@ -44,9 +44,7 @@ namespace
                 auto unified = unify(lhs.parameters[i], rhs.parameters[i]);
                 params.insert(unified.begin(), unified.end());
             }
-            Substitution body = unify(rhs.result, substitute(lhs.result, params));
-
-            return body;
+            return params;
         }
 
         template<typename LHST, typename RHST>

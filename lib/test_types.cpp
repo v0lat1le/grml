@@ -31,6 +31,6 @@ BOOST_AUTO_TEST_CASE(test_unify)
     BOOST_TEST(grml::unify(grml::BasicType::BOOL, b) == grml::Substitution());
 
     BOOST_TEST(grml::unify(grml::FunctionType(a, { a }), grml::FunctionType(b, { grml::BasicType::INT })) ==
-        (grml::Substitution{ { b, grml::BasicType::INT } })
+        (grml::Substitution{ { a, grml::BasicType::INT } })
     );
 }

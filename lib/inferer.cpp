@@ -66,7 +66,7 @@ namespace
             auto rhs = FunctionType(result, params);
             auto lhs = inferHelper(e.name, lookup);
             auto substitution = unify(lhs, rhs);
-            return substitute(result, substitution);
+            return substitute(boost::get<FunctionType>(lhs).result, substitution);
         }
     };
 
