@@ -39,7 +39,7 @@ namespace
             if (lhs.parameters.size() != rhs.parameters.size()) throw std::runtime_error("curry is not supported");
 
             Substitution params;
-            for (auto i = 0; i < lhs.parameters.size(); ++i)
+            for (std::size_t i = 0; i < lhs.parameters.size(); ++i)
             {
                 auto unified = unify(lhs.parameters[i], rhs.parameters[i]);
                 params.insert(unified.begin(), unified.end());
