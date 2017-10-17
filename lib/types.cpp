@@ -58,7 +58,7 @@ namespace
             {
                 return { { lhs, rhs } };
             }
-            if constexpr (std::is_same_v<LHST, BasicType>)
+            if constexpr (std::is_same_v<RHST, TypeVariable>)
             {
                 return {};
             }
