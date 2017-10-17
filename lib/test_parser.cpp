@@ -1,4 +1,4 @@
-#define BOOST_TEST_MODULE my master test suite name
+#define BOOST_TEST_MODULE parser test suite
 #define BOOST_TEST_DYN_LINK
 
 #include "parser.h"

@@ -48,7 +48,7 @@ namespace
             auto scope = lookup;
             for (const auto& decl: e.declarations)
             {
-                auto [ id, t ] = boost::apply_visitor(DeclarationInferer{scope}, decl);
+                auto [ id, t ] = boost::apply_visitor(DeclarationInferer(scope), decl);
                 scope.insert_or_assign(std::move(id), std::move(t));
             }
             return inferHelper(e.expression, std::move(scope));
