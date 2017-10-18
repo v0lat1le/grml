@@ -8,47 +8,51 @@
 
 BOOST_AUTO_TEST_CASE(test_inferer)
 {
-    BOOST_TEST(grml::infer(grml::Literal(5)) == grml::Type(grml::BasicType::INT));
-    BOOST_TEST(grml::infer(grml::Literal(false)) == grml::Type(grml::BasicType::BOOL));
-    BOOST_TEST(grml::infer(grml::Literal(0.5)) == grml::Type(grml::BasicType::REAL));
+    using namespace grml;
 
-    auto letx5 = grml::Expression(
-        grml::LetConstruct(
-            { grml::VariableDeclaration(grml::Identifier("x"), grml::Literal(5)) },
-            grml::Identifier("x")
+    BOOST_TEST(infer(Literal(5)) == Type(BasicType::INT));
+    BOOST_TEST(infer(Literal(false)) == Type(BasicType::BOOL));
+    BOOST_TEST(infer(Literal(0.5)) == Type(BasicType::REAL));
+
+    auto letx5 = Expression(
+        LetConstruct(
+            { VariableDeclaration(Identifier("x"), Literal(5)) },
+            Identifier("x")
         )
     );
-    BOOST_TEST(grml::infer(letx5) == grml::Type(grml::BasicType::INT));
+    BOOST_TEST(infer(letx5) == Type(BasicType::INT));
 
-    auto add35 = grml::Expression(
-        grml::BinaryOperation(grml::BinaryOperator::ADD, grml::Literal(3), grml::Literal(5))
+    auto add35 = Expression(
+        BinaryOperation(BinaryOperator::ADD, Literal(3), Literal(5))
     );
-    BOOST_TEST(grml::infer(add35) == grml::Type(grml::BasicType::INT));
+    BOOST_TEST(infer(add35) == Type(BasicType::INT));
 
-    auto letfun = grml::Expression(
-        grml::LetConstruct(
-            { grml::FunctionDeclaration(grml::Identifier("x"), { grml::Identifier("p") }, grml::Literal(5)) },
-            grml::Identifier("x")
+    auto letfun = Expression(
+        LetConstruct(
+            { FunctionDeclaration(Identifier("x"), { Identifier("p") }, Literal(5)) },
+            Identifier("x")
         )
     );
-    BOOST_TEST(grml::infer(letfun) == grml::Type(grml::FunctionType(grml::BasicType::INT, { grml::TypeVariable(0) })));
+    BOOST_TEST(infer(letfun) == Type(FunctionType(BasicType::INT, { TypeVariable(0) })));
 
-    auto funcall = grml::Expression(
-        grml::LetConstruct(
-            { grml::FunctionDeclaration(grml::Identifier("f"), { grml::Identifier("p") }, grml::Identifier("p")) },
-            grml::FunctionCall(grml::Identifier("f"), { grml::Literal(5) })
+    auto funcall = Expression(
+        LetConstruct(
+            { FunctionDeclaration(Identifier("f"), { Identifier("p") }, Identifier("p")) },
+            FunctionCall(Identifier("f"), { Literal(5) })
         )
     );
-    BOOST_TEST(grml::infer(funcall) == grml::Type(grml::BasicType::INT));
+    BOOST_TEST(infer(funcall) == Type(BasicType::INT));
 
-    auto funcall2 = grml::Expression(
-        grml::LetConstruct(
+    auto funcall2 = Expression(
+        LetConstruct(
             {
-                grml::FunctionDeclaration(grml::Identifier("f"), { grml::Identifier("p") }, grml::Identifier("p")),
-                grml::FunctionDeclaration(grml::Identifier("g"), { grml::Identifier("p") }, grml::FunctionCall(grml::Identifier("f"), { grml::Identifier("p") }))
+                FunctionDeclaration(Identifier("f"), { Identifier("p") }, Identifier("p")),
+                FunctionDeclaration(Identifier("g"), {
+                    Identifier("p") }, FunctionCall(Identifier("f"), { Identifier("p")
+                }))
             },
-            grml::FunctionCall(grml::Identifier("g"), { grml::Literal(5) })
+            FunctionCall(Identifier("g"), { Literal(5) })
         )
     );
-    BOOST_TEST(grml::infer(funcall2) == grml::Type(grml::BasicType::INT));
+    BOOST_TEST(infer(funcall2) == Type(BasicType::INT));
 }

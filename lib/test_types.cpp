@@ -10,6 +10,7 @@
 BOOST_AUTO_TEST_CASE(test_printing)
 {
     using namespace grml;
+
     auto to_string = [](const auto& t) { return boost::lexical_cast<std::string>(t); };
 
     BOOST_TEST(to_string(BasicType::INT) == "int");
@@ -27,29 +28,35 @@ BOOST_AUTO_TEST_CASE(test_printing)
 
 BOOST_AUTO_TEST_CASE(test_substitute)
 {
-    auto a = grml::TypeVariable();
+    using namespace grml;
 
-    BOOST_TEST(grml::substitute(grml::BasicType::REAL, { { a, grml::BasicType::INT } } ) == grml::Type(grml::BasicType::REAL));
-    BOOST_TEST(grml::substitute(a, { { a, grml::BasicType::INT } } ) == grml::Type(grml::BasicType::INT));
-    BOOST_TEST(grml::substitute(a, {}) == grml::Type(a));
+    TypeVariable a;
 
-    BOOST_TEST(grml::substitute(grml::FunctionType(a, { a }), { { a, grml::BasicType::INT } }) ==
-        grml::Type(grml::FunctionType(grml::BasicType::INT, { grml::BasicType::INT }))
+    BOOST_TEST(substitute(BasicType::REAL, { { a, BasicType::INT } } ) == Type(BasicType::REAL));
+    BOOST_TEST(substitute(a, { { a, BasicType::INT } } ) == Type(BasicType::INT));
+    BOOST_TEST(substitute(a, {}) == Type(a));
+
+    BOOST_TEST(
+        substitute(FunctionType(a, { a }), { { a, BasicType::INT } }) ==
+        Type(FunctionType(BasicType::INT, { BasicType::INT }))
     );
 }
 
 BOOST_AUTO_TEST_CASE(test_unify)
 {
-    grml::TypeVariable a, b;
+    using namespace grml;
 
-    BOOST_TEST(grml::unify(a, a) == grml::Substitution());
-    BOOST_TEST(grml::unify(a, b) == (grml::Substitution{ { a, b } }));
-    BOOST_TEST(grml::unify(a, grml::BasicType::INT) == (grml::Substitution{ { a, grml::BasicType::INT } }));
-    BOOST_TEST(grml::unify(grml::BasicType::BOOL, b) == grml::Substitution());
+    TypeVariable a, b;
 
-    BOOST_TEST(grml::unify(grml::FunctionType(a, { a }), grml::FunctionType(b, { grml::BasicType::INT })) ==
-        (grml::Substitution{ { a, grml::BasicType::INT } })
+    BOOST_TEST(unify(a, a) == Substitution());
+    BOOST_TEST(unify(a, b) == (Substitution{ { a, b } }));
+    BOOST_TEST(unify(a, BasicType::INT) == (Substitution{ { a, BasicType::INT } }));
+    BOOST_TEST(unify(BasicType::BOOL, b) == Substitution());
+
+    BOOST_TEST(
+        unify(FunctionType(a, { a }), FunctionType(b, { BasicType::INT })) ==
+        (Substitution{ { a, BasicType::INT } })
     );
 
-    BOOST_CHECK_THROW(grml::unify(grml::BasicType::INT, grml::BasicType::BOOL), std::runtime_error);
+    BOOST_CHECK_THROW(unify(BasicType::INT, BasicType::BOOL), std::runtime_error);
 }
