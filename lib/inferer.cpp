@@ -7,9 +7,6 @@ namespace
 {
     using namespace grml;
 
-    using Lookup = Environment;
-    Type inferHelper(const Expression& expr, const Lookup& lookup);
-
     struct LiteralInferer : boost::static_visitor<Type> {
         Type operator()(int) const { return BasicType::INT; }
         Type operator()(bool) const { return BasicType::BOOL; }
@@ -17,9 +14,9 @@ namespace
     };
 
     struct DeclarationInferer : boost::static_visitor<std::pair<Identifier, Type> > {
-        const Lookup& lookup;
+        const Environment& env;
 
-        DeclarationInferer(const Lookup& l) : lookup(l) {}
+        DeclarationInferer(const Environment& e) : env(e) {}
         std::pair<Identifier, Type> operator()(const VariableDeclaration& d) const;
         std::pair<Identifier, Type> operator()(const FunctionDeclaration& d) const;
     };
@@ -27,29 +24,29 @@ namespace
     struct ExpressionInferer : boost::static_visitor<Type>
     {
         using ResultType = ExpressionInferer::result_type;
-        const Lookup& lookup;
+        const Environment& env;
 
-        ExpressionInferer(const Lookup& l) : lookup(l) {}
+        ExpressionInferer(const Environment& e) : env(e) {}
 
         Type operator()(const Literal& e) const { return { boost::apply_visitor(LiteralInferer(), e) }; }
-        Type operator()(const Identifier& e) const { return { lookup.at(e) }; }
-        Type operator()(const UnaryOperation& e) const { return inferHelper(e.rhs, lookup); }
-        Type operator()(const BinaryOperation& e) const { /* TODO: impl as f-call */ return inferHelper(e.lhs, lookup); }
+        Type operator()(const Identifier& e) const { return { env.at(e) }; }
+        Type operator()(const UnaryOperation& e) const { return infer(e.rhs, env); }
+        Type operator()(const BinaryOperation& e) const { /* TODO: impl as f-call */ return infer(e.lhs, env); }
         Type operator()(const LetConstruct& e) const
         {
-            auto scope = lookup;
+            auto scope = env;
             for (const auto& decl: e.declarations)
             {
                 auto [ id, t ] = boost::apply_visitor(DeclarationInferer(scope), decl);
                 scope.insert_or_assign(std::move(id), std::move(t));
             }
-            return inferHelper(e.expression, std::move(scope));
+            return infer(e.expression, std::move(scope));
         }
         Type operator()(const IfConstruct& e) const
         {
-            auto testSub = unify(inferHelper(e.test, lookup), BasicType::BOOL);
-            auto whenTrue = substitute(inferHelper(e.whenTrue, lookup), testSub);
-            auto whenFalse = substitute(inferHelper(e.whenFalse, lookup), testSub);
+            auto testSub = unify(infer(e.test, env), BasicType::BOOL);
+            auto whenTrue = substitute(infer(e.whenTrue, env), testSub);
+            auto whenFalse = substitute(infer(e.whenFalse, env), testSub);
             auto bodySub = unify(whenTrue, whenFalse);
             return substitute(whenTrue, bodySub);
         }
@@ -60,11 +57,11 @@ namespace
             FunctionType::Parameters params;
             for (const auto& arg: e.arguments)
             {
-                auto p = inferHelper(arg, lookup);
+                auto p = infer(arg, env);
                 params.push_back(p);
             }
             auto rhs = FunctionType(result, params);
-            auto lhs = inferHelper(e.name, lookup);
+            auto lhs = infer(e.name, env);
             auto substitution = unify(lhs, rhs);
             return substitute(boost::get<FunctionType>(lhs).result, substitution);
         }
@@ -72,25 +69,20 @@ namespace
 
     std::pair<Identifier, Type> DeclarationInferer::operator()(const VariableDeclaration& d) const
     {
-        return std::make_pair(d.name, inferHelper(d.expression, lookup));
+        return std::make_pair(d.name, infer(d.expression, env));
     }
 
     std::pair<Identifier, Type> DeclarationInferer::operator()(const FunctionDeclaration& d) const
     {
-        auto scope = lookup;
+        auto scope = env;
         FunctionType::Parameters params;
         for (const auto& param: d.parameters)
         {
             params.push_back(TypeVariable());
             scope.insert_or_assign(param, params.back());
         }
-        auto result = inferHelper(d.expression, std::move(scope));
+        auto result = infer(d.expression, std::move(scope));
         return std::make_pair(d.name, FunctionType(std::move(result), std::move(params)));
-    }
-
-    Type inferHelper(const Expression& expr, const Lookup& lookup)
-    {
-        return boost::apply_visitor(ExpressionInferer(lookup), expr);
     }
 }
 
@@ -103,6 +95,6 @@ namespace grml
 {
     Type infer(const Expression& expr, const Environment& env)
     {
-        return inferHelper(expr, env);
+        return boost::apply_visitor(ExpressionInferer(env), expr);
     }
 }
