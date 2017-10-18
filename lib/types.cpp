@@ -79,3 +79,35 @@ grml::Substitution grml::unify(const grml::Type& lhs, const grml::Type& rhs)
 {
     return boost::apply_visitor(UnificationVisitor(), lhs, rhs);
 }
+
+std::ostream& grml::operator<<(std::ostream& os, const grml::BasicType& t)
+{
+    switch (t)
+    {
+        case BasicType::BOOL:
+            os << "bool";
+            break;
+        case BasicType::INT:
+            os << "int";
+            break;
+        case BasicType::REAL:
+            os << "real";
+            break;
+    }
+    return os;
+}
+
+std::ostream& grml::operator<<(std::ostream& os, const grml::TypeVariable& t)
+{
+    os << static_cast<char>('a'+t.id/10) << t.id%10;
+    return os;
+}
+
+std::ostream& grml::operator<<(std::ostream& os, const FunctionType& t)
+{
+    os << "(";
+    for (const auto& p: t.parameters)
+        os << p << "->";
+    os << t.result << ")";
+    return os;
+}

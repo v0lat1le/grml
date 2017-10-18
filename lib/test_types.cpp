@@ -3,9 +3,27 @@
 
 #include "types.h"
 
+#include <boost/lexical_cast.hpp>
 #include <boost/test/unit_test.hpp>
 
-BOOST_TEST_DONT_PRINT_LOG_VALUE(grml::Type)
+
+BOOST_AUTO_TEST_CASE(test_printing)
+{
+    using namespace grml;
+    auto to_string = [](const auto& t) { return boost::lexical_cast<std::string>(t); };
+
+    BOOST_TEST(to_string(BasicType::INT) == "int");
+    BOOST_TEST(to_string(BasicType::BOOL) == "bool");
+    BOOST_TEST(to_string(BasicType::REAL) == "real");
+    BOOST_TEST(to_string(TypeVariable(2)) == "a2");
+    BOOST_TEST(to_string(TypeVariable(12)) == "b2");
+    BOOST_TEST(to_string(TypeVariable(252)) == "z2");
+    BOOST_TEST(to_string(FunctionType(BasicType::INT, { })) == "(int)");
+    BOOST_TEST(to_string(FunctionType(BasicType::INT, { BasicType::BOOL })) == "(bool->int)");
+    BOOST_TEST(to_string(FunctionType(BasicType::INT, { BasicType::BOOL, BasicType::REAL })) == "(bool->real->int)");
+
+    BOOST_TEST(to_string(Type(BasicType::INT)) == "int");
+}
 
 BOOST_AUTO_TEST_CASE(test_substitute)
 {

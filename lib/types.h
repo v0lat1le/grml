@@ -13,6 +13,7 @@ namespace grml
         BOOL,
         REAL
     };
+    std::ostream& operator<<(std::ostream& os, const BasicType& t);
 
     struct TypeVariable
     {
@@ -28,6 +29,7 @@ namespace grml
     private:
         static std::atomic_int64_t counter;
     };
+    std::ostream& operator<<(std::ostream& os, const TypeVariable& t);
 
     struct FunctionType;
 
@@ -51,6 +53,7 @@ namespace grml
             return lhs.result == rhs.result && lhs.parameters == rhs.parameters;
         }
     };
+    std::ostream& operator<<(std::ostream& os, const FunctionType& t);
 
     struct TypeVariableHasher
     {

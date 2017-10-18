@@ -5,7 +5,6 @@
 
 #include <boost/test/unit_test.hpp>
 
-BOOST_TEST_DONT_PRINT_LOG_VALUE(grml::Type)
 
 BOOST_AUTO_TEST_CASE(test_inferer)
 {
