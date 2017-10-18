@@ -7,15 +7,7 @@ namespace
 {
     using namespace grml;
 
-    struct IdHasher
-    {
-        std::size_t operator()(const Identifier& id) const
-        {
-            return std::hash<std::string>{}(id.name);
-        }
-    };
-
-    using Lookup = std::unordered_map<Identifier, Type, IdHasher>;
+    using Lookup = Environment;
     Type inferHelper(const Expression& expr, const Lookup& lookup);
 
     struct LiteralInferer : boost::static_visitor<Type> {
@@ -94,10 +86,15 @@ namespace
     }
 }
 
+std::size_t grml::detail::IdHasher::operator()(const grml::Identifier& id) const
+{
+    return std::hash<std::string>{}(id.name);
+}
+
 namespace grml
 {
-    Type infer(const Expression& expr)
+    Type infer(const Expression& expr, const Environment& env)
     {
-        return inferHelper(expr, Lookup());
+        return inferHelper(expr, env);
     }
 }
