@@ -81,8 +81,11 @@ namespace
             params.push_back(TypeVariable());
             scope.insert_or_assign(param, params.back());
         }
+        FunctionType self = FunctionType(TypeVariable(), std::move(params));
+        scope.insert_or_assign(d.name, self);
         auto result = infer(d.expression, std::move(scope));
-        return std::make_pair(d.name, FunctionType(std::move(result), std::move(params)));
+        
+        return std::make_pair(d.name, FunctionType(std::move(result), std::move(self.parameters)));
     }
 }
 
