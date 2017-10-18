@@ -33,7 +33,8 @@ BOOST_AUTO_TEST_CASE(test_inferer)
             Identifier("x")
         )
     );
-    BOOST_TEST(infer(letfun) == Type(FunctionType(BasicType::INT, { TypeVariable(0) })));
+    auto letfunt = boost::get<FunctionType>(infer(letfun));
+    BOOST_TEST(letfunt.result == Type(BasicType::INT));
 
     auto funcall = Expression(
         LetConstruct(
