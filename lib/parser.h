@@ -23,13 +23,14 @@ namespace grml
             quoted_string %= qi::lexeme['"' >> +(ascii::char_ - '"') >> '"'];
             literal = strict_double | qi::int_ | qi::bool_;
             identifier = qi::as_string[qi::lexeme[ascii::char_("a-zA-Z") >> *ascii::char_("0-9a-zA-Z")]];
-            simple = '(' >> expression >> ')' | literal | letConstruct | funcCall | identifier;
+            simple = '(' >> expression >> ')' | literal | letConstruct | ifConstruct | funcCall | identifier;
             valueDecl = ("val" >> identifier >> "=" >> expression)[qi::_val = phx::construct<VariableDeclaration>(qi::_1, qi::_2)];
             
             funcParams = -(identifier % ",");
             funcDecl = ("fun" >> identifier >> "(" >> funcParams >> ")" >> "=" >> expression)[qi::_val = phx::construct<FunctionDeclaration>(qi::_1, qi::_2, qi::_3)];
             declaration = valueDecl | funcDecl;
             letConstruct = ("let" >> *declaration >> "in" >> expression >> "end")[qi::_val = phx::construct<LetConstruct>(qi::_1, qi::_2)];
+            ifConstruct = ("if" >> expression >> "then" >> expression >> "else" >> expression)[qi::_val = phx::construct<IfConstruct>(qi::_1, qi::_2, qi::_3)];
 
             addSubOp.add
                 ("+", BinaryOperator::ADD)
@@ -57,7 +58,7 @@ namespace grml
         qi::rule<Iterator, FunctionDeclaration, ascii::space_type> funcDecl;
         qi::rule<Iterator, Declaration, ascii::space_type> declaration;
         qi::rule<Iterator, std::vector<Expression>(), ascii::space_type> funcArgs;
-        ExprRule simple, letConstruct, addSub, mulDivMod, funcCall, expression, start;
+        ExprRule simple, letConstruct, ifConstruct, addSub, mulDivMod, funcCall, expression, start;
     
         qi::rule<Iterator, std::string(), ascii::space_type> quoted_string;
     };

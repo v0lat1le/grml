@@ -43,6 +43,7 @@ namespace grml
     struct BinaryOperation;
     struct LetConstruct;
     struct FunctionCall;
+    struct IfConstruct;
 
     using Expression = boost::variant<
         Literal,
@@ -50,7 +51,8 @@ namespace grml
         boost::recursive_wrapper<UnaryOperation>,
         boost::recursive_wrapper<BinaryOperation>,
         boost::recursive_wrapper<LetConstruct>,
-        boost::recursive_wrapper<FunctionCall>
+        boost::recursive_wrapper<FunctionCall>,
+        boost::recursive_wrapper<IfConstruct>
     >;
 
     struct UnaryOperation
@@ -138,6 +140,21 @@ namespace grml
         friend bool operator == (const FunctionCall& lhs, const FunctionCall& rhs)
         {
             return lhs.name == rhs.name && lhs.arguments == rhs.arguments;
+        }
+    };
+
+    struct IfConstruct
+    {
+        Expression test;
+        Expression whenTrue;
+        Expression whenFalse;
+
+        IfConstruct() {}
+        IfConstruct(Expression c, Expression t, Expression f) : test(std::move(c)), whenTrue(std::move(t)), whenFalse(std::move(f)) {}
+        
+        friend bool operator == (const IfConstruct& lhs, const IfConstruct& rhs)
+        {
+            return lhs.test == rhs.test && lhs.whenTrue == rhs.whenTrue && lhs.whenFalse == rhs.whenFalse;
         }
     };
 }

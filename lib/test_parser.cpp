@@ -109,4 +109,6 @@ BOOST_AUTO_TEST_CASE(test_expressions)
         parse("fun(1, true, 0.5, x);") ==
         Expression(FunctionCall(Identifier("fun"), {Literal(1), Literal(true), Literal(0.5), Identifier("x") }))
     );
+
+    BOOST_TEST(parse("if true then 4 else 5;") == Expression(IfConstruct(Literal(true), Literal(4), Literal(5))));
 }
