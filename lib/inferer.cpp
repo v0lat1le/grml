@@ -45,6 +45,14 @@ namespace
             }
             return inferHelper(e.expression, std::move(scope));
         }
+        Type operator()(const IfConstruct& e) const
+        {
+            auto testSub = unify(inferHelper(e.test, lookup), BasicType::BOOL);
+            auto whenTrue = substitute(inferHelper(e.whenTrue, lookup), testSub);
+            auto whenFalse = substitute(inferHelper(e.whenFalse, lookup), testSub);
+            auto bodySub = unify(whenTrue, whenFalse);
+            return substitute(whenTrue, bodySub);
+        }
         Type operator()(const FunctionCall& e) const
         {
             TypeVariable result;

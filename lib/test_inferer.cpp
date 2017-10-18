@@ -55,4 +55,16 @@ BOOST_AUTO_TEST_CASE(test_inferer)
         )
     );
     BOOST_TEST(infer(funcall2) == Type(BasicType::INT));
+
+    auto ifsimple = Expression(IfConstruct(Literal(true), Literal(4), Literal(5)));
+    BOOST_TEST(infer(ifsimple) == Type(BasicType::INT));
+
+    auto ifbadtest = Expression(IfConstruct(Literal(4), Literal(4), Literal(5)));
+    BOOST_CHECK_THROW(infer(ifbadtest), std::runtime_error);
+
+    auto ifbadbody = Expression(IfConstruct(Literal(true), Literal(4.5), Literal(5)));
+    BOOST_CHECK_THROW(infer(ifbadbody), std::runtime_error);
+
+    auto ifdeduceall = Expression(IfConstruct(Identifier("p"), Identifier("p"), Identifier("p")));
+    BOOST_TEST(infer(ifdeduceall, {{Identifier("p"), TypeVariable()}}) == Type(BasicType::BOOL));
 }
