@@ -52,18 +52,17 @@ namespace
         }
         Type operator()(const FunctionCall& e) const
         {
-            TypeVariable result;
-
             FunctionType::Parameters params;
             for (const auto& arg: e.arguments)
             {
                 auto p = infer(arg, env);
                 params.push_back(p);
             }
-            auto rhs = FunctionType(result, params);
+            auto rhs = FunctionType(TypeVariable(), params);
             auto lhs = infer(e.name, env);
             auto substitution = unify(lhs, rhs);
-            return substitute(boost::get<FunctionType>(lhs).result, substitution);
+            auto result = substitute(lhs, substitution);
+            return boost::get<FunctionType>(result).result;
         }
     };
 
