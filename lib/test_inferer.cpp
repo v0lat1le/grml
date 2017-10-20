@@ -69,6 +69,32 @@ BOOST_AUTO_TEST_CASE(test_inferer)
     auto ifdeduceall = Expression(IfConstruct(Identifier("p"), Identifier("p"), Identifier("p")));
     BOOST_TEST(infer(ifdeduceall, {{Identifier("p"), TypeVariable()}}) == Type(BasicType::BOOL));
 
+    auto fakerecurse1 = Expression(
+        LetConstruct(
+            {
+                FunctionDeclaration(Identifier("f"), { Identifier("g"), Identifier("x") },
+                    IfConstruct(Literal(true),
+                        FunctionCall(Identifier("g"), { Identifier("g"), Identifier("x")}),
+                        Identifier("x")))
+            },
+            FunctionCall(Identifier("f"), { Identifier("f"), Literal(0.5) })
+        )
+    );
+    BOOST_TEST(infer(fakerecurse1) == Type(BasicType::REAL));
+
+    auto fakerecurse2 = Expression(
+        LetConstruct(
+            {
+                FunctionDeclaration(Identifier("f"), { Identifier("g"), Identifier("x") },
+                    IfConstruct(Literal(true),
+                        Identifier("x"),
+                        FunctionCall(Identifier("g"), { Identifier("g"), Identifier("x")})))
+            },
+            FunctionCall(Identifier("f"), { Identifier("f"), Literal(5) })
+        )
+    );
+    BOOST_TEST(infer(fakerecurse2) == Type(BasicType::INT));
+
     auto funrecurse1 = Expression(
         LetConstruct(
             {
