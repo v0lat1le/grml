@@ -13,65 +13,84 @@ namespace
         Type operator()(double) const { return BasicType::REAL; }
     };
 
-    struct DeclarationInferer : boost::static_visitor<std::pair<Identifier, Type> > {
+    struct InferenceResult
+    {
+        InferenceResult(Type t) : type(std::move(t)) {}
+        InferenceResult(Type t, Substitution s) : type(std::move(t)), substitution(std::move(s)) {}
+
+        Type type;
+        Substitution substitution;
+    };
+
+    InferenceResult inferImpl(const Expression& expr, const Environment& env);
+
+    struct DeclarationInferer : boost::static_visitor<std::pair<Identifier, InferenceResult> > {
         const Environment& env;
 
         DeclarationInferer(const Environment& e) : env(e) {}
-        std::pair<Identifier, Type> operator()(const VariableDeclaration& d) const;
-        std::pair<Identifier, Type> operator()(const FunctionDeclaration& d) const;
+        std::pair<Identifier, InferenceResult> operator()(const VariableDeclaration& d) const;
+        std::pair<Identifier, InferenceResult> operator()(const FunctionDeclaration& d) const;
     };
 
-    struct ExpressionInferer : boost::static_visitor<Type>
+    struct ExpressionInferer : boost::static_visitor<InferenceResult>
     {
         using ResultType = ExpressionInferer::result_type;
         const Environment& env;
 
         ExpressionInferer(const Environment& e) : env(e) {}
 
-        Type operator()(const Literal& e) const { return { boost::apply_visitor(LiteralInferer(), e) }; }
-        Type operator()(const Identifier& e) const { return { env.at(e) }; }
-        Type operator()(const UnaryOperation& e) const { return infer(e.rhs, env); }
-        Type operator()(const BinaryOperation& e) const { /* TODO: impl as f-call */ return infer(e.lhs, env); }
-        Type operator()(const LetConstruct& e) const
+        InferenceResult operator()(const Literal& e) const { return { boost::apply_visitor(LiteralInferer(), e) }; }
+        InferenceResult operator()(const Identifier& e) const { return { env.at(e) }; }
+        InferenceResult operator()(const UnaryOperation& e) const { return inferImpl(e.rhs, env); }
+        InferenceResult operator()(const BinaryOperation& e) const { /* TODO: impl as f-call */ return inferImpl(e.lhs, env); }
+        InferenceResult operator()(const LetConstruct& e) const
         {
             auto scope = env;
             for (const auto& decl: e.declarations)
             {
                 auto [ id, t ] = boost::apply_visitor(DeclarationInferer(scope), decl);
-                scope.insert_or_assign(std::move(id), std::move(t));
+                scope.insert_or_assign(std::move(id), std::move(t.type));
             }
-            return infer(e.expression, std::move(scope));
+            return inferImpl(e.expression, std::move(scope));
         }
-        Type operator()(const IfConstruct& e) const
+        InferenceResult operator()(const IfConstruct& e) const
         {
-            auto testSub = unify(infer(e.test, env), BasicType::BOOL);
-            auto whenTrue = substitute(infer(e.whenTrue, env), testSub);
-            auto whenFalse = substitute(infer(e.whenFalse, env), testSub);
-            auto bodySub = unify(whenTrue, whenFalse);
-            return substitute(whenTrue, bodySub);
+            auto [test, substitution] = inferImpl(e.test, env);
+            combine(substitution, unify(test, BasicType::BOOL));
+            auto [whenTrue, tSub] = inferImpl(e.whenTrue, env);
+            auto [whenFalse, fSub] = inferImpl(e.whenFalse, env);
+            combine(tSub, std::move(fSub));
+            combine(substitution, std::move(tSub));
+
+            combine(substitution, unify(whenTrue, whenFalse));
+            return { substitute(whenTrue, substitution), substitution };
         }
-        Type operator()(const FunctionCall& e) const
+        InferenceResult operator()(const FunctionCall& e) const
         {
+            Substitution substitution;
             FunctionType::Parameters params;
             for (const auto& arg: e.arguments)
             {
-                auto p = infer(arg, env);
-                params.push_back(p);
+                auto [t, s] = inferImpl(arg, env);
+                params.push_back(std::move(t));
+                combine(substitution, std::move(s));
             }
-            auto rhs = FunctionType(TypeVariable(), params);
-            auto lhs = infer(e.name, env);
-            auto substitution = unify(lhs, rhs);
+            auto a = TypeVariable();
+            auto rhs = FunctionType(a, params);
+            auto [lhs, s] = inferImpl(e.name, env);
+            combine(substitution, std::move(s));
+            combine(substitution, unify(lhs, rhs));
             auto result = substitute(lhs, substitution);
-            return boost::get<FunctionType>(result).result;
+            return { boost::get<FunctionType>(result).result, substitution };
         }
     };
 
-    std::pair<Identifier, Type> DeclarationInferer::operator()(const VariableDeclaration& d) const
+    std::pair<Identifier, InferenceResult> DeclarationInferer::operator()(const VariableDeclaration& d) const
     {
-        return std::make_pair(d.name, infer(d.expression, env));
+        return { d.name, inferImpl(d.expression, env) };
     }
 
-    std::pair<Identifier, Type> DeclarationInferer::operator()(const FunctionDeclaration& d) const
+    std::pair<Identifier, InferenceResult> DeclarationInferer::operator()(const FunctionDeclaration& d) const
     {
         auto scope = env;
         FunctionType::Parameters params;
@@ -82,9 +101,16 @@ namespace
         }
         FunctionType self = FunctionType(TypeVariable(), std::move(params));
         scope.insert_or_assign(d.name, self);
-        auto result = infer(d.expression, std::move(scope));
+        auto body = inferImpl(d.expression, std::move(scope));
         
-        return std::make_pair(d.name, FunctionType(std::move(result), std::move(self.parameters)));
+        self.result = std::move(body.type);
+        auto result = substitute(self, body.substitution);
+        return { d.name, { result, std::move(body.substitution) } };
+    }
+
+    InferenceResult inferImpl(const Expression& expr, const Environment& env)
+    {
+        return boost::apply_visitor(ExpressionInferer(env), expr);
     }
 }
 
@@ -97,6 +123,7 @@ namespace grml
 {
     Type infer(const Expression& expr, const Environment& env)
     {
-        return boost::apply_visitor(ExpressionInferer(env), expr);
+        auto[t, s] = inferImpl(expr, env);
+        return substitute(t, s);
     }
 }
