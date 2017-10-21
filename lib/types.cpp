@@ -41,10 +41,9 @@ namespace
             Substitution params;
             for (std::size_t i = 0; i < lhs.parameters.size(); ++i)
             {
-                auto unified = unify(lhs.parameters[i], rhs.parameters[i]);
-                params.insert(unified.begin(), unified.end());
+                combine(params, unify(lhs.parameters[i], rhs.parameters[i]));
             }
-            return params;
+            return combine(params, unify(lhs.result, rhs.result));
         }
 
         template<typename LHST, typename RHST>
@@ -60,7 +59,7 @@ namespace
             }
             if constexpr (std::is_same_v<RHST, TypeVariable>)
             {
-                return {};
+                return { { rhs, lhs } };
             }
             else
             {

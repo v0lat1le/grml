@@ -56,11 +56,11 @@ BOOST_AUTO_TEST_CASE(test_unify)
     BOOST_TEST(unify(a, a) == Substitution());
     BOOST_TEST(unify(a, b) == (Substitution{ { a, b } }));
     BOOST_TEST(unify(a, BasicType::INT) == (Substitution{ { a, BasicType::INT } }));
-    BOOST_TEST(unify(BasicType::BOOL, b) == Substitution());
+    BOOST_TEST(unify(BasicType::BOOL, b) == (Substitution{ { b, BasicType::BOOL } }));
 
     BOOST_TEST(
         unify(FunctionType(a, { a }), FunctionType(b, { BasicType::INT })) ==
-        (Substitution{ { a, BasicType::INT } })
+        (Substitution{ { a, BasicType::INT }, { b, BasicType::INT } })
     );
 
     BOOST_CHECK_THROW(unify(BasicType::INT, BasicType::BOOL), std::runtime_error);
