@@ -3,15 +3,20 @@
 
 #include "types.h"
 
-#include <boost/lexical_cast.hpp>
 #include <boost/test/unit_test.hpp>
+#include <sstream>
 
 
 BOOST_AUTO_TEST_CASE(test_printing)
 {
     using namespace grml;
 
-    auto to_string = [](const auto& t) { return boost::lexical_cast<std::string>(t); };
+    auto to_string = [](const auto& t)
+    {
+        std::ostringstream ss;
+        ss << t;
+        return ss.str();
+    };
 
     BOOST_TEST(to_string(BasicType::INT) == "int");
     BOOST_TEST(to_string(BasicType::BOOL) == "bool");
