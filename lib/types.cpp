@@ -80,6 +80,23 @@ grml::Substitution grml::unify(const grml::Type& lhs, const grml::Type& rhs)
     return boost::apply_visitor(UnificationVisitor(), lhs, rhs);
 }
 
+grml::Substitution& grml::combine(grml::Substitution& lhs, grml::Substitution&& rhs)
+{
+    for (auto&[tv, t] : rhs) {
+        auto subd = substitute(std::move(t), lhs);
+        auto pos = lhs.find(tv);
+        if (pos != lhs.end())
+        {
+            combine(lhs, unify(pos->second, subd));
+        }
+        else
+        {
+            lhs.insert({ tv, std::move(subd) });
+        }
+    }
+    return lhs;
+}
+
 std::ostream& grml::operator<<(std::ostream& os, const grml::BasicType& t)
 {
     switch (t)
