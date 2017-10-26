@@ -75,12 +75,12 @@ BOOST_AUTO_TEST_CASE(test_combine)
         { a, grml::FunctionType(c, { grml::BasicType::INT }) },
         { b, grml::BasicType::INT } };
     grml::Substitution rhs{
-        { d, grml::FunctionType(grml::BasicType::INT,{ a }) },
+        { d, grml::FunctionType(grml::BasicType::INT, { a }) },
         { b, grml::BasicType::INT } };
     grml::Substitution combined{
-        { a, grml::FunctionType(c,{ grml::BasicType::INT }) },
+        { a, grml::FunctionType(c, { grml::BasicType::INT }) },
         { b, grml::BasicType::INT },
-        { d, grml::FunctionType(grml::BasicType::INT,{ grml::FunctionType(c,{ grml::BasicType::INT }) }) } };
+        { d, grml::FunctionType(grml::BasicType::INT, { grml::FunctionType(c, { grml::BasicType::INT }) }) } };
 
-    BOOST_TEST(grml::combine(lhs, std::move(rhs)) == combined);
+    BOOST_TEST(grml::combine(lhs, rhs) == combined);
 }
