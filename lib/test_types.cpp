@@ -51,7 +51,7 @@ BOOST_AUTO_TEST_CASE(test_unify)
 {
     using namespace grml;
 
-    TypeVariable a, b;
+    TypeVariable a, b, c;
 
     BOOST_TEST(unify(a, a) == Substitution());
     BOOST_TEST(unify(a, b) == (Substitution{ { a, b } }));
@@ -61,6 +61,11 @@ BOOST_AUTO_TEST_CASE(test_unify)
     BOOST_TEST(
         unify(FunctionType(a, { a }), FunctionType(b, { BasicType::INT })) ==
         (Substitution{ { a, BasicType::INT }, { b, BasicType::INT } })
+    );
+
+    BOOST_TEST(
+        unify(FunctionType(a, { a }), FunctionType(b, { c })) ==
+        (Substitution{ { a, b }, { c, b } })
     );
 
     BOOST_CHECK_THROW(unify(BasicType::INT, BasicType::BOOL), std::runtime_error);
