@@ -41,9 +41,9 @@ namespace
             Substitution params;
             for (std::size_t i = 0; i < lhs.parameters.size(); ++i)
             {
-                combine(params, unify(lhs.parameters[i], rhs.parameters[i]));
+                params = combine(unify(lhs.parameters[i], rhs.parameters[i]), params);
             }
-            return combine(params, unify(lhs.result, rhs.result));
+            return combine(unify(substitute(lhs.result, params), substitute(rhs.result, params)), params);
         }
 
         template<typename LHST, typename RHST>
@@ -79,21 +79,14 @@ grml::Substitution grml::unify(const grml::Type& lhs, const grml::Type& rhs)
     return boost::apply_visitor(UnificationVisitor(), lhs, rhs);
 }
 
-grml::Substitution& grml::combine(grml::Substitution& lhs, grml::Substitution&& rhs)
+grml::Substitution grml::combine(const grml::Substitution& lhs, const grml::Substitution& rhs)
 {
-    for (auto&[tv, t] : rhs) {
-        auto subd = substitute(std::move(t), lhs);
-        auto pos = lhs.find(tv);
-        if (pos != lhs.end())
-        {
-            combine(lhs, unify(pos->second, subd));
-        }
-        else
-        {
-            lhs.insert({ tv, std::move(subd) });
-        }
+    auto result = lhs;
+    for (const auto& [tv, t]: rhs)
+    {
+        result.insert_or_assign(tv, substitute(t, lhs));
     }
-    return lhs;
+    return result;
 }
 
 std::ostream& grml::operator<<(std::ostream& os, const grml::BasicType& t)

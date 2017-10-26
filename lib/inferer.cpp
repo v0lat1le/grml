@@ -56,13 +56,13 @@ namespace
         InferenceResult operator()(const IfConstruct& e) const
         {
             auto [test, substitution] = inferImpl(e.test, env);
-            combine(substitution, unify(test, BasicType::BOOL));
+            substitution = combine(unify(test, BasicType::BOOL), substitution);
             auto [whenTrue, tSub] = inferImpl(e.whenTrue, env);
             auto [whenFalse, fSub] = inferImpl(e.whenFalse, env);
-            combine(tSub, std::move(fSub));
-            combine(substitution, std::move(tSub));
+            substitution = combine(tSub, substitution);
+            substitution = combine(fSub, substitution);
 
-            combine(substitution, unify(whenTrue, whenFalse));
+            substitution = combine(unify(whenTrue, whenFalse), substitution);
             return { substitute(whenTrue, substitution), substitution };
         }
         InferenceResult operator()(const FunctionCall& e) const
@@ -73,15 +73,20 @@ namespace
             {
                 auto [t, s] = inferImpl(arg, env);
                 params.push_back(std::move(t));
-                combine(substitution, std::move(s));
+                substitution = combine(s, substitution);
             }
-            auto a = TypeVariable();
+            TypeVariable a;
             auto rhs = FunctionType(a, params);
-            auto [lhs, s] = inferImpl(e.name, env);
-            combine(substitution, std::move(s));
-            combine(substitution, unify(lhs, rhs));
-            auto result = substitute(lhs, substitution);
-            return { boost::get<FunctionType>(result).result, substitution };
+            auto scope = env;
+            for (auto& [id, t]: scope)
+            {
+                t = substitute(t, substitution);
+            }
+            const auto& [lhs, s] = inferImpl(e.name, scope);
+            substitution = combine(s, substitution);
+            auto unifier = unify(substitute(lhs, s), rhs);
+            auto pos = unifier.find(a);
+            return { pos == unifier.end() ? a : pos->second, combine(unifier, substitution) };
         }
     };
 

@@ -67,5 +67,5 @@ namespace grml
 
     Substitution unify(const Type& lhs, const Type& rhs);
     Type substitute(const Type& type, const Substitution& substitution);
-    Substitution& combine(Substitution& lhs, Substitution&& rhs);
+    Substitution combine(const Substitution& lhs, const Substitution& rhs);
 }
