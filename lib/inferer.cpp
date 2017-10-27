@@ -92,7 +92,9 @@ namespace
 
     std::pair<Identifier, InferenceResult> DeclarationInferer::operator()(const VariableDeclaration& d) const
     {
-        return { d.name, inferImpl(d.expression, env) };
+        const auto& [t, s] = inferImpl(d.expression, env);
+        auto sub = unify(d.type, t);
+        return { d.name, { substitute(t, sub), combine(sub, s) } };
     }
 
     std::pair<Identifier, InferenceResult> DeclarationInferer::operator()(const FunctionDeclaration& d) const

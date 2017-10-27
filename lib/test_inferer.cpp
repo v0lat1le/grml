@@ -150,4 +150,20 @@ BOOST_AUTO_TEST_CASE(test_inferer)
         )
     );
     BOOST_TEST(infer(instanciate) == Type(BasicType::REAL));
+
+    auto letx5int = Expression(
+        LetConstruct(
+            { VariableDeclaration(Identifier("x"), BasicType::INT, Literal(5)) },
+            Identifier("x")
+        )
+    );
+    BOOST_TEST(infer(letx5int) == Type(BasicType::INT));
+
+    auto letx5fail = Expression(
+        LetConstruct(
+            { VariableDeclaration(Identifier("x"), BasicType::REAL, Literal(5)) },
+            Identifier("x")
+        )
+    );
+    BOOST_CHECK_THROW(infer(letx5fail), std::runtime_error);
 }

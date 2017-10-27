@@ -1,6 +1,9 @@
 #pragma once
 
+#include "types.h"
+
 #include <boost/variant.hpp>
+
 #include <vector>
 #include <string>
 
@@ -87,10 +90,12 @@ namespace grml
     struct VariableDeclaration
     {
         Identifier name;
+        Type type;
         Expression expression;
 
         VariableDeclaration() {}
-        VariableDeclaration(Identifier n, Expression e) : name(std::move(n)), expression(std::move(e)) {}
+        VariableDeclaration(Identifier n, Expression e) : name(std::move(n)), type(TypeVariable()), expression(std::move(e)) {}
+        VariableDeclaration(Identifier n, Type t, Expression e) : name(std::move(n)), type(std::move(t)), expression(std::move(e)) {}
     
         friend bool operator == (const VariableDeclaration& lhs, const VariableDeclaration& rhs)
         {
