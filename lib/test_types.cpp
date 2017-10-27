@@ -89,3 +89,13 @@ BOOST_AUTO_TEST_CASE(test_combine)
 
     BOOST_TEST(grml::combine(lhs, rhs) == combined);
 }
+
+BOOST_AUTO_TEST_CASE(test_instantiate)
+{
+    using namespace grml;
+
+    TypeVariable a, b, c, d;
+
+    auto faa = instantiate(FunctionType(a, { a }));
+    BOOST_TEST(boost::get<FunctionType>(faa).result == boost::get<FunctionType>(faa).parameters[0]);
+}
