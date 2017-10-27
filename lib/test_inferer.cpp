@@ -140,4 +140,14 @@ BOOST_AUTO_TEST_CASE(test_inferer)
         )
     );
     BOOST_TEST(infer(funrecurse2) == Type(BasicType::INT));
+
+    auto instanciate = Expression(
+        LetConstruct(
+            { FunctionDeclaration(Identifier("f"), { Identifier("p") }, Identifier("p")),
+              VariableDeclaration(Identifier("x"), FunctionCall(Identifier("f"), { Literal(5) })),
+              VariableDeclaration(Identifier("y"), FunctionCall(Identifier("f"), { Literal(.5) }))},
+              Identifier("y")
+        )
+    );
+    BOOST_TEST(infer(instanciate) == Type(BasicType::REAL));
 }
