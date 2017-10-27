@@ -105,12 +105,32 @@ namespace grml
 
     struct FunctionDeclaration
     {
+        struct Parameter
+        {
+            Identifier name;
+            Type type;
+
+            friend bool operator == (const Parameter& lhs, const Parameter& rhs)
+            {
+                return lhs.name == rhs.name /* TODO: && lhs.type == rhs.type */;
+            }
+        };
+        using Parameters = std::vector<Parameter>;
         Identifier name;
-        std::vector<Identifier> parameters;
+        Type result;
+        Parameters parameters;
         Expression expression;
         
         FunctionDeclaration() {}
-        FunctionDeclaration(Identifier n, std::vector<Identifier> ps, Expression e) : name(std::move(n)), parameters(std::move(ps)), expression(std::move(e)) {}
+        FunctionDeclaration(Identifier n, std::vector<Identifier> ps, Expression e) : name(std::move(n)), expression(std::move(e))
+        {
+            parameters.reserve(ps.size());
+            for (const auto& p: ps)
+            {
+                parameters.push_back({ p, TypeVariable() });
+            }
+        }
+        FunctionDeclaration(Identifier n, Type r, Parameters ps, Expression e) : name(std::move(n)), result(std::move(r)), parameters(std::move(ps)), expression(std::move(e)) {}
 
         friend bool operator == (const FunctionDeclaration& lhs, const FunctionDeclaration& rhs)
         {

@@ -104,7 +104,7 @@ namespace
         for (const auto& param: d.parameters)
         {
             params.push_back(TypeVariable());
-            scope.insert_or_assign(param, params.back());
+            scope.insert_or_assign(param.name, params.back());
         }
         FunctionType self = FunctionType(TypeVariable(), std::move(params));
         scope.insert_or_assign(d.name, self);
