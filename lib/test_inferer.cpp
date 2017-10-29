@@ -6,6 +6,20 @@
 #include <boost/test/unit_test.hpp>
 
 
+BOOST_AUTO_TEST_CASE(test_instantiate)
+{
+    using namespace grml;
+
+    TypeVariable a, b, c, d;
+
+    BOOST_TEST(instantiate({ FunctionType(BasicType::INT, { BasicType::REAL }), {} }) == Type(FunctionType(BasicType::INT, { BasicType::REAL })));
+
+    auto faa = instantiate({ FunctionType(a, { a }), { a } });
+    BOOST_TEST(boost::get<FunctionType>(faa).result == boost::get<FunctionType>(faa).parameters[0]);
+
+    BOOST_TEST(instantiate({ FunctionType(a, { a }), {} }) == Type(FunctionType(a, { a })));
+}
+
 BOOST_AUTO_TEST_CASE(test_inferer)
 {
     using namespace grml;
@@ -67,7 +81,7 @@ BOOST_AUTO_TEST_CASE(test_inferer)
     BOOST_CHECK_THROW(infer(ifbadbody), std::runtime_error);
 
     auto ifdeduceall = Expression(IfConstruct(Identifier("p"), Identifier("p"), Identifier("p")));
-    BOOST_TEST(infer(ifdeduceall, {{Identifier("p"), TypeVariable()}}) == Type(BasicType::BOOL));
+    BOOST_TEST(infer(ifdeduceall, { { Identifier("p"), { TypeVariable(), {} } } }) == Type(BasicType::BOOL));
 
     auto iffunc1 = Expression(
         LetConstruct(
@@ -141,7 +155,7 @@ BOOST_AUTO_TEST_CASE(test_inferer)
     );
     BOOST_TEST(infer(funrecurse2) == Type(BasicType::INT));
 
-    auto instanciate = Expression(
+    auto instantiate = Expression(
         LetConstruct(
             { FunctionDeclaration(Identifier("f"), { Identifier("p") }, Identifier("p")),
               VariableDeclaration(Identifier("x"), FunctionCall(Identifier("f"), { Literal(5) })),
@@ -149,7 +163,7 @@ BOOST_AUTO_TEST_CASE(test_inferer)
               Identifier("y")
         )
     );
-    BOOST_TEST(infer(instanciate) == Type(BasicType::REAL));
+    BOOST_TEST(infer(instantiate) == Type(BasicType::REAL));
 
     auto letx5int = Expression(
         LetConstruct(

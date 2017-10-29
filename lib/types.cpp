@@ -89,39 +89,6 @@ grml::Substitution grml::combine(const grml::Substitution& lhs, const grml::Subs
     return result;
 }
 
-grml::Type grml::instantiate(const grml::Type& type)
-{    
-    struct InstantiationVisitor : boost::static_visitor<Type>
-    {
-        std::unordered_map<TypeVariable, TypeVariable, TypeVariableHasher> substitution;
-
-        Type instantiate(const Type& t)
-        {
-            return boost::apply_visitor(*this, t);
-        }
-        Type operator()(const BasicType& t)
-        {
-            return t;
-        }
-        Type operator()(const TypeVariable& t)
-        {
-            return substitution[t];
-        }
-        Type operator()(const FunctionType& t)
-        {
-            FunctionType::Parameters params;
-            for (const auto& p: t.parameters)
-            {
-                params.push_back(instantiate(p));
-            }
-            return FunctionType(instantiate(t.result), std::move(params));
-        }
-    };
-
-    InstantiationVisitor v;
-    return boost::apply_visitor(v, type);
-}
-
 std::ostream& grml::operator<<(std::ostream& os, const grml::BasicType& t)
 {
     switch (t)
