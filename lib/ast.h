@@ -122,7 +122,7 @@ namespace grml
         Expression expression;
         
         FunctionDeclaration() {}
-        FunctionDeclaration(Identifier n, std::vector<Identifier> ps, Expression e) : name(std::move(n)), expression(std::move(e))
+        FunctionDeclaration(Identifier n, std::vector<Identifier> ps, Expression e) : name(std::move(n)), result(TypeVariable()), expression(std::move(e))
         {
             parameters.reserve(ps.size());
             for (const auto& p: ps)
