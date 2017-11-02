@@ -32,12 +32,26 @@ namespace grml
     std::ostream& operator<<(std::ostream& os, const TypeVariable& t);
 
     struct FunctionType;
+    struct TupleType;
 
     using Type = boost::variant<
         BasicType,
         TypeVariable,
+        boost::recursive_wrapper<TupleType>,
         boost::recursive_wrapper<FunctionType>
     >;
+
+    struct TupleType
+    {
+        using Parameters = std::vector<Type>;
+        Parameters parameters;
+        
+        friend bool operator==(const TupleType& lhs, const TupleType& rhs)
+        {
+            return lhs.parameters == rhs.parameters;
+        }
+    };
+    std::ostream& operator<<(std::ostream& os, const TupleType& t);
 
     struct FunctionType
     {

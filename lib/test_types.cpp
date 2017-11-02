@@ -24,6 +24,7 @@ BOOST_AUTO_TEST_CASE(test_printing)
     BOOST_TEST(to_string(TypeVariable(2)) == "a2");
     BOOST_TEST(to_string(TypeVariable(12)) == "b2");
     BOOST_TEST(to_string(TypeVariable(252)) == "z2");
+    BOOST_TEST(to_string(TupleType{{ BasicType::INT, BasicType::BOOL, TypeVariable(2) }}) == "(int*bool*a2)");
     BOOST_TEST(to_string(FunctionType(BasicType::INT, { })) == "(int)");
     BOOST_TEST(to_string(FunctionType(BasicType::INT, { BasicType::BOOL })) == "(bool->int)");
     BOOST_TEST(to_string(FunctionType(BasicType::INT, { BasicType::BOOL, BasicType::REAL })) == "(bool->real->int)");
@@ -40,6 +41,11 @@ BOOST_AUTO_TEST_CASE(test_substitute)
     BOOST_TEST(substitute(BasicType::REAL, { { a, BasicType::INT } } ) == Type(BasicType::REAL));
     BOOST_TEST(substitute(a, { { a, BasicType::INT } } ) == Type(BasicType::INT));
     BOOST_TEST(substitute(a, {}) == Type(a));
+
+    BOOST_TEST(
+        substitute(TupleType{ { a, a } }, { { a, BasicType::INT } }) ==
+        Type(TupleType{ {BasicType::INT, BasicType::INT }})
+    );
 
     BOOST_TEST(
         substitute(FunctionType(a, { a }), { { a, BasicType::INT } }) ==
@@ -59,9 +65,13 @@ BOOST_AUTO_TEST_CASE(test_unify)
     BOOST_TEST(unify(BasicType::BOOL, b) == (Substitution{ { b, BasicType::BOOL } }));
 
     BOOST_TEST(
-        unify(FunctionType(a, { a }), FunctionType(b, { BasicType::INT })) ==
-        (Substitution{ { a, BasicType::INT }, { b, BasicType::INT } })
+        unify(TupleType{ { a, b } }, TupleType{ { BasicType::INT, BasicType::BOOL } }) ==
+        (Substitution{ { a, BasicType::INT }, { b, BasicType::BOOL } })
     );
+    
+    BOOST_CHECK_THROW(unify(TupleType{ { a, b } }, TupleType{ { BasicType::INT } }), std::runtime_error);
+    BOOST_CHECK_THROW(unify(TupleType{ { BasicType::BOOL, b } }, TupleType{ { BasicType::INT, BasicType::BOOL } }), std::runtime_error);
+    // TODO: BOOST_CHECK_THROW(unify(TupleType{ { a, a } }, TupleType{ { BasicType::INT, BasicType::BOOL } }), std::runtime_error);
 
     BOOST_TEST(
         unify(FunctionType(a, { a }), FunctionType(b, { c })) ==
@@ -70,7 +80,6 @@ BOOST_AUTO_TEST_CASE(test_unify)
 
     BOOST_CHECK_THROW(unify(BasicType::INT, BasicType::BOOL), std::runtime_error);
 }
-
 
 BOOST_AUTO_TEST_CASE(test_combine)
 {

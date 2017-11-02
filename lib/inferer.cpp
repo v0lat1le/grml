@@ -149,6 +149,15 @@ grml::Type grml::instantiate(const grml::TypeSchema& schema)
                 return substitution[t];
             return t;
         }
+        Type operator()(const TupleType& t)
+        {
+            TupleType::Parameters params;
+            for (const auto& p : t.parameters)
+            {
+                params.push_back(instantiate(p));
+            }
+            return TupleType{std::move(params)};
+        }
         Type operator()(const FunctionType& t)
         {
             FunctionType::Parameters params;

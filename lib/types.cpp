@@ -21,6 +21,15 @@ namespace
             if (r != substitution.end()) return r->second;
             return t;
         }
+        Type operator()(const TupleType& t) const
+        {
+            TupleType::Parameters params;
+            for (const auto& p: t.parameters)
+            {
+                params.push_back(substitute(p, substitution));
+            }
+            return TupleType{std::move(params)};
+        }
         Type operator()(const FunctionType& t) const
         {
             FunctionType::Parameters params;
@@ -44,6 +53,18 @@ namespace
                 params = combine(unify(lhs.parameters[i], rhs.parameters[i]), params);
             }
             return combine(unify(substitute(lhs.result, params), substitute(rhs.result, params)), params);
+        }
+
+        Substitution operator()(const TupleType& lhs, const TupleType& rhs) const
+        {
+            if (lhs.parameters.size() != rhs.parameters.size()) throw std::runtime_error("incompatible types");
+
+            Substitution params;
+            for (std::size_t i = 0; i < lhs.parameters.size(); ++i)
+            {
+                params = combine(unify(lhs.parameters[i], rhs.parameters[i]), params);
+            }
+            return params;
         }
 
         template<typename LHST, typename RHST>
@@ -112,7 +133,22 @@ std::ostream& grml::operator<<(std::ostream& os, const grml::TypeVariable& t)
     return os;
 }
 
-std::ostream& grml::operator<<(std::ostream& os, const FunctionType& t)
+std::ostream& grml::operator<<(std::ostream& os, const grml::TupleType& t)
+{
+    os << "(";
+    for(auto iter = t.parameters.begin(); iter != t.parameters.end(); ++iter)
+    {
+        if (iter != t.parameters.begin())
+        {
+            os << "*";
+        }
+        os << *iter;
+    }
+    os << ")";
+    return os;
+}
+
+std::ostream& grml::operator<<(std::ostream& os, const grml::FunctionType& t)
 {
     os << "(";
     for (const auto& p: t.parameters)
