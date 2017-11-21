@@ -58,7 +58,7 @@ install:
       ./b2 -d0 toolset=clang cxxflags=-std=c++1y install
       popd
     fi
-    CMAKE_OPTIONS+=" -DBOOST_ROOT=${BOOST_DIR}"
+    CMAKE_OPTIONS+=" -D BOOST_ROOT=${BOOST_DIR}"
   # CMake
   - |
     if [[ "${TRAVIS_OS_NAME}" == "linux" ]]; then
@@ -73,7 +73,7 @@ install:
 before_script:
   - mkdir ${TRAVIS_BUILD_DIR}/build
   - cd ${TRAVIS_BUILD_DIR}/build
-  - cmake .. ${CMAKE_OPTIONS} -D ENABLE_COVERAGE:BOOL=TRUE
+  - cmake ${CMAKE_OPTIONS} -D ENABLE_COVERAGE:BOOL=TRUE ..
 
 script:
   - make -j2 -k
