@@ -73,11 +73,12 @@ install:
 before_script:
   - mkdir ${TRAVIS_BUILD_DIR}/build
   - cd ${TRAVIS_BUILD_DIR}/build
-  - cmake .. ${CMAKE_OPTIONS}
+  - cmake .. ${CMAKE_OPTIONS} -D ENABLE_COVERAGE:BOOL=TRUE
 
 script:
   - make -j2 -k
   - |
     if [[ "${UNIT_TESTS}" == "true" ]]; then
       ctest --output-on-failure -j2
+      bash <(curl -s https://codecov.io/bash) -x /usr/bin/gcov-5
     fi
